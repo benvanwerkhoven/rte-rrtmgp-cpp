@@ -25,6 +25,7 @@
 #ifndef RRTMGP_KERNELS_H
 #define RRTMGP_KERNELS_H
 
+#include "Types.h"
 
 // Kernels of fluxes.
 namespace rrtmgp_kernels

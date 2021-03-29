@@ -30,82 +30,77 @@
 
 namespace rrtmgp_kernel_launcher
 {
-    template<typename TF>
     void apply_BC(
             int ncol, int nlay, int ngpt,
-            Bool top_at_1, Array<TF,3>& gpt_flux_dn)
+            Bool top_at_1, Array<Real,3>& gpt_flux_dn)
     {
         rrtmgp_kernels::apply_BC_0(
                 &ncol, &nlay, &ngpt,
                 &top_at_1, gpt_flux_dn.ptr());
     }
 
-    template<typename TF>
     void apply_BC(
             int ncol, int nlay, int ngpt, Bool top_at_1,
-            const Array<TF,2>& inc_flux, Array<TF,3>& gpt_flux_dn)
+            const Array<Real,2>& inc_flux, Array<Real,3>& gpt_flux_dn)
     {
         rrtmgp_kernels::apply_BC_gpt(
                 &ncol, &nlay, &ngpt, &top_at_1,
-                const_cast<TF*>(inc_flux.ptr()), gpt_flux_dn.ptr());
+                const_cast<Real*>(inc_flux.ptr()), gpt_flux_dn.ptr());
     }
 
-    template<typename TF>
     void apply_BC(
             int ncol, int nlay, int ngpt, Bool top_at_1,
-            const Array<TF,2>& inc_flux,
-            const Array<TF,1>& factor,
-            Array<TF,3>& gpt_flux)
+            const Array<Real,2>& inc_flux,
+            const Array<Real,1>& factor,
+            Array<Real,3>& gpt_flux)
     {
         rrtmgp_kernels::apply_BC_factor(
                 &ncol, &nlay, &ngpt,
                 &top_at_1,
-                const_cast<TF*>(inc_flux.ptr()),
-                const_cast<TF*>(factor.ptr()),
+                const_cast<Real*>(inc_flux.ptr()),
+                const_cast<Real*>(factor.ptr()),
                 gpt_flux.ptr());
     }
 
-    template<typename TF>
     void sw_solver_2stream(
             int ncol, int nlay, int ngpt, Bool top_at_1,
-            const Array<TF,3>& tau,
-            const Array<TF,3>& ssa,
-            const Array<TF,3>& g,
-            const Array<TF,1>& mu0,
-            const Array<TF,2>& sfc_alb_dir_gpt, const Array<TF,2>& sfc_alb_dif_gpt,
-            Array<TF,3>& gpt_flux_up, Array<TF,3>& gpt_flux_dn, Array<TF,3>& gpt_flux_dir)
+            const Array<Real,3>& tau,
+            const Array<Real,3>& ssa,
+            const Array<Real,3>& g,
+            const Array<Real,1>& mu0,
+            const Array<Real,2>& sfc_alb_dir_gpt, const Array<Real,2>& sfc_alb_dif_gpt,
+            Array<Real,3>& gpt_flux_up, Array<Real,3>& gpt_flux_dn, Array<Real,3>& gpt_flux_dir)
     {
         rrtmgp_kernels::sw_solver_2stream(
                 &ncol, &nlay, &ngpt, &top_at_1,
-                const_cast<TF*>(tau.ptr()),
-                const_cast<TF*>(ssa.ptr()),
-                const_cast<TF*>(g  .ptr()),
-                const_cast<TF*>(mu0.ptr()),
-                const_cast<TF*>(sfc_alb_dir_gpt.ptr()),
-                const_cast<TF*>(sfc_alb_dif_gpt.ptr()),
+                const_cast<Real*>(tau.ptr()),
+                const_cast<Real*>(ssa.ptr()),
+                const_cast<Real*>(g  .ptr()),
+                const_cast<Real*>(mu0.ptr()),
+                const_cast<Real*>(sfc_alb_dir_gpt.ptr()),
+                const_cast<Real*>(sfc_alb_dif_gpt.ptr()),
                 gpt_flux_up.ptr(), gpt_flux_dn.ptr(), gpt_flux_dir.ptr());
     }
 }
 
-template<typename TF>
-void Rte_sw<TF>::rte_sw(
-        const std::unique_ptr<Optical_props_arry<TF>>& optical_props,
+void Rte_sw::rte_sw(
+        const std::unique_ptr<Optical_props_arry<Real>>& optical_props,
         const Bool top_at_1,
-        const Array<TF,1>& mu0,
-        const Array<TF,2>& inc_flux_dir,
-        const Array<TF,2>& sfc_alb_dir,
-        const Array<TF,2>& sfc_alb_dif,
-        const Array<TF,2>& inc_flux_dif,
-        Array<TF,3>& gpt_flux_up,
-        Array<TF,3>& gpt_flux_dn,
-        Array<TF,3>& gpt_flux_dir)
+        const Array<Real,1>& mu0,
+        const Array<Real,2>& inc_flux_dir,
+        const Array<Real,2>& sfc_alb_dir,
+        const Array<Real,2>& sfc_alb_dif,
+        const Array<Real,2>& inc_flux_dif,
+        Array<Real,3>& gpt_flux_up,
+        Array<Real,3>& gpt_flux_dn,
+        Array<Real,3>& gpt_flux_dir)
 {
     const int ncol = optical_props->get_ncol();
     const int nlay = optical_props->get_nlay();
     const int ngpt = optical_props->get_ngpt();
 
-    Array<TF,2> sfc_alb_dir_gpt({ncol, ngpt});
-    Array<TF,2> sfc_alb_dif_gpt({ncol, ngpt});
+    Array<Real,2> sfc_alb_dir_gpt({ncol, ngpt});
+    Array<Real,2> sfc_alb_dif_gpt({ncol, ngpt});
 
     expand_and_transpose(optical_props, sfc_alb_dir, sfc_alb_dir_gpt);
     expand_and_transpose(optical_props, sfc_alb_dif, sfc_alb_dif_gpt);
@@ -132,11 +127,10 @@ void Rte_sw<TF>::rte_sw(
     // fluxes->reduce(gpt_flux_up, gpt_flux_dn, gpt_flux_dir, optical_props, top_at_1);
 }
 
-template<typename TF>
-void Rte_sw<TF>::expand_and_transpose(
-        const std::unique_ptr<Optical_props_arry<TF>>& ops,
-        const Array<TF,2> arr_in,
-        Array<TF,2>& arr_out)
+void Rte_sw::expand_and_transpose(
+        const std::unique_ptr<Optical_props_arry<Real>>& ops,
+        const Array<Real,2> arr_in,
+        Array<Real,2>& arr_out)
 {
     const int ncol = arr_in.dim(2);
     const int nband = ops->get_nband();
@@ -147,9 +141,3 @@ void Rte_sw<TF>::expand_and_transpose(
             for (int igpt=limits({1, iband}); igpt<=limits({2, iband}); ++igpt)
                 arr_out({icol, igpt}) = arr_in({iband, icol});
 }
-
-#ifdef FLOAT_SINGLE_RRTMGP
-template class Rte_sw<float>;
-#else
-template class Rte_sw<double>;
-#endif
