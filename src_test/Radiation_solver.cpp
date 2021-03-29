@@ -289,8 +289,7 @@ namespace
         // End reading of k-distribution.
     }
 
-    template<typename TF>
-    Cloud_optics<TF> load_and_init_cloud_optics(
+    Cloud_optics load_and_init_cloud_optics(
             const std::string& coef_file)
     {
         // READ THE COEFFICIENTS FOR THE OPTICAL SOLVER.
@@ -302,32 +301,32 @@ namespace
         int n_size_liq = coef_nc.get_dimension_size("nsize_liq");
         int n_size_ice = coef_nc.get_dimension_size("nsize_ice");
 
-        Array<TF,2> band_lims_wvn(coef_nc.get_variable<TF>("bnd_limits_wavenumber", {n_band, 2}), {2, n_band});
+        Array<Real,2> band_lims_wvn(coef_nc.get_variable<Real>("bnd_limits_wavenumber", {n_band, 2}), {2, n_band});
 
         // Read look-up table constants.
-        TF radliq_lwr = coef_nc.get_variable<TF>("radliq_lwr");
-        TF radliq_upr = coef_nc.get_variable<TF>("radliq_upr");
-        TF radliq_fac = coef_nc.get_variable<TF>("radliq_fac");
+        Real radliq_lwr = coef_nc.get_variable<Real>("radliq_lwr");
+        Real radliq_upr = coef_nc.get_variable<Real>("radliq_upr");
+        Real radliq_fac = coef_nc.get_variable<Real>("radliq_fac");
 
-        TF radice_lwr = coef_nc.get_variable<TF>("radice_lwr");
-        TF radice_upr = coef_nc.get_variable<TF>("radice_upr");
-        TF radice_fac = coef_nc.get_variable<TF>("radice_fac");
+        Real radice_lwr = coef_nc.get_variable<Real>("radice_lwr");
+        Real radice_upr = coef_nc.get_variable<Real>("radice_upr");
+        Real radice_fac = coef_nc.get_variable<Real>("radice_fac");
 
-        Array<TF,2> lut_extliq(
-                coef_nc.get_variable<TF>("lut_extliq", {n_band, n_size_liq}), {n_size_liq, n_band});
-        Array<TF,2> lut_ssaliq(
-                coef_nc.get_variable<TF>("lut_ssaliq", {n_band, n_size_liq}), {n_size_liq, n_band});
-        Array<TF,2> lut_asyliq(
-                coef_nc.get_variable<TF>("lut_asyliq", {n_band, n_size_liq}), {n_size_liq, n_band});
+        Array<Real,2> lut_extliq(
+                coef_nc.get_variable<Real>("lut_extliq", {n_band, n_size_liq}), {n_size_liq, n_band});
+        Array<Real,2> lut_ssaliq(
+                coef_nc.get_variable<Real>("lut_ssaliq", {n_band, n_size_liq}), {n_size_liq, n_band});
+        Array<Real,2> lut_asyliq(
+                coef_nc.get_variable<Real>("lut_asyliq", {n_band, n_size_liq}), {n_size_liq, n_band});
 
-        Array<TF,3> lut_extice(
-                coef_nc.get_variable<TF>("lut_extice", {n_rghice, n_band, n_size_ice}), {n_size_ice, n_band, n_rghice});
-        Array<TF,3> lut_ssaice(
-                coef_nc.get_variable<TF>("lut_ssaice", {n_rghice, n_band, n_size_ice}), {n_size_ice, n_band, n_rghice});
-        Array<TF,3> lut_asyice(
-                coef_nc.get_variable<TF>("lut_asyice", {n_rghice, n_band, n_size_ice}), {n_size_ice, n_band, n_rghice});
+        Array<Real,3> lut_extice(
+                coef_nc.get_variable<Real>("lut_extice", {n_rghice, n_band, n_size_ice}), {n_size_ice, n_band, n_rghice});
+        Array<Real,3> lut_ssaice(
+                coef_nc.get_variable<Real>("lut_ssaice", {n_rghice, n_band, n_size_ice}), {n_size_ice, n_band, n_rghice});
+        Array<Real,3> lut_asyice(
+                coef_nc.get_variable<Real>("lut_asyice", {n_rghice, n_band, n_size_ice}), {n_size_ice, n_band, n_rghice});
 
-        return Cloud_optics<TF>(
+        return Cloud_optics(
                 band_lims_wvn,
                 radliq_lwr, radliq_upr, radliq_fac,
                 radice_lwr, radice_upr, radice_fac,
@@ -346,8 +345,8 @@ Radiation_solver_longwave<TF>::Radiation_solver_longwave(
     this->kdist = std::make_unique<Gas_optics_rrtmgp<TF>>(
             load_and_init_gas_optics<TF>(gas_concs, file_name_gas));
 
-    this->cloud_optics = std::make_unique<Cloud_optics<TF>>(
-            load_and_init_cloud_optics<TF>(file_name_cloud));
+    this->cloud_optics = std::make_unique<Cloud_optics>(
+            load_and_init_cloud_optics(file_name_cloud));
 }
 
 template<typename TF>
@@ -572,8 +571,8 @@ Radiation_solver_shortwave<TF>::Radiation_solver_shortwave(
     this->kdist = std::make_unique<Gas_optics_rrtmgp<TF>>(
             load_and_init_gas_optics<TF>(gas_concs, file_name_gas));
 
-    this->cloud_optics = std::make_unique<Cloud_optics<TF>>(
-            load_and_init_cloud_optics<TF>(file_name_cloud));
+    this->cloud_optics = std::make_unique<Cloud_optics>(
+            load_and_init_cloud_optics(file_name_cloud));
 }
 
 template<typename TF>

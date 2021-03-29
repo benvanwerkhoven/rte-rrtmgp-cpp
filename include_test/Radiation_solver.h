@@ -62,7 +62,7 @@ class Radiation_solver_longwave
 
     private:
         std::unique_ptr<Gas_optics_rrtmgp<TF>> kdist;
-        std::unique_ptr<Cloud_optics<TF>> cloud_optics;
+        std::unique_ptr<Cloud_optics> cloud_optics;
 };
 
 template<typename TF>
@@ -107,6 +107,6 @@ class Radiation_solver_shortwave
 
     private:
         std::unique_ptr<Gas_optics<TF>> kdist;
-        std::unique_ptr<Cloud_optics<TF>> cloud_optics;
+        std::unique_ptr<Cloud_optics> cloud_optics;
 };
 #endif
