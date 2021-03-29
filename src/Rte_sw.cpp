@@ -25,8 +25,12 @@
 #include "Rte_sw.h"
 #include "Array.h"
 #include "Optical_props.h"
-
+#include <iomanip>
+#include <chrono>
 #include "rrtmgp_kernels.h"
+// CUDA TEST
+#include "rte_kernel_launcher_cuda.h"
+// END CUDA TEST
 
 namespace rrtmgp_kernel_launcher
 {
@@ -104,7 +108,6 @@ void Rte_sw::rte_sw(
 
     expand_and_transpose(optical_props, sfc_alb_dir, sfc_alb_dir_gpt);
     expand_and_transpose(optical_props, sfc_alb_dif, sfc_alb_dif_gpt);
-
     // Upper boundary condition. At this stage, flux_dn contains the diffuse radiation only.
     rrtmgp_kernel_launcher::apply_BC(ncol, nlay, ngpt, top_at_1, inc_flux_dir, mu0, gpt_flux_dir);
     if (inc_flux_dif.size() == 0)
@@ -125,6 +128,7 @@ void Rte_sw::rte_sw(
 
     // CvH: The original fortran code had a call to the reduce here.
     // fluxes->reduce(gpt_flux_up, gpt_flux_dn, gpt_flux_dir, optical_props, top_at_1);
+
 }
 
 void Rte_sw::expand_and_transpose(

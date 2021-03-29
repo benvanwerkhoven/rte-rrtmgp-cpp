@@ -26,8 +26,13 @@
 #include "Array.h"
 #include "Optical_props.h"
 #include "Source_functions.h"
+#include <iomanip>
+#include <chrono>
 
 #include "rrtmgp_kernels.h"
+// CUDA TEST
+#include "rte_kernel_launcher_cuda.h"
+// END CUDA TEST
 
 namespace rrtmgp_kernel_launcher
 {

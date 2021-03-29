@@ -165,4 +165,126 @@ class Optical_props_2str : public Optical_props_arry
 
 void add_to(Optical_props_1scl& op_inout, const Optical_props_1scl& op_in);
 void add_to(Optical_props_2str& op_inout, const Optical_props_2str& op_in);
+
+// GPU version of optical props class
+#ifdef USECUDA
+template<typename TF>
+class Optical_props_gpu
+{
+    public:
+        Optical_props_gpu(
+                const Array<TF,2>& band_lims_wvn,
+                const Array<int,2>& band_lims_gpt);
+
+        Optical_props_gpu(
+                const Array<TF,2>& band_lims_wvn);
+
+        virtual ~Optical_props_gpu() {};
+
+        Optical_props_gpu(const Optical_props_gpu&) = default;
+
+        Array<int,1> get_gpoint_bands() const { return this->gpt2band; }
+ 
+        Array_gpu<int,1> get_gpoint_bands_gpu() const { return this->gpt2band_gpu; }
+        Array_gpu<int,2> get_band_lims_gpoint_gpu() const { return this->band2gpt_gpu;}
+        int get_nband() const { return this->band2gpt.dim(2); }
+        int get_ngpt() const { return this->band2gpt.max(); }
+        Array<int,2> get_band_lims_gpoint() const { return this->band2gpt;}
+        Array<TF,2> get_band_lims_wavenumber() const { return this->band_lims_wvn; }
+        
+    private:
+        Array<int,2> band2gpt;         // (begin g-point, end g-point) = band2gpt(2,band)
+        Array_gpu<int,2> band2gpt_gpu; // (begin g-point, end g-point) = band2gpt(2,band)
+        
+        Array<int,1> gpt2band;         // band = gpt2band(g-point)
+        Array_gpu<int,1> gpt2band_gpu; // band = gpt2band(g-point)
+        
+        Array<TF,2> band_lims_wvn; // (upper and lower wavenumber by band) = band_lims_wvn(2,band)
+};
+
+// Base class for 1scl and 2str solvers fully implemented in header.
+template<typename TF>
+class Optical_props_arry_gpu : public Optical_props_gpu<TF>
+{
+    public:
+        Optical_props_arry_gpu(const Optical_props_gpu<TF>& optical_props_gpu) :
+            Optical_props_gpu<TF>(optical_props_gpu)
+        {}
+
+        virtual ~Optical_props_arry_gpu() {};
+
+        virtual Array_gpu<TF,3>& get_tau() = 0;
+        virtual Array_gpu<TF,3>& get_ssa() = 0;
+        virtual Array_gpu<TF,3>& get_g  () = 0;
+
+        virtual const Array_gpu<TF,3>& get_tau() const = 0;
+        virtual const Array_gpu<TF,3>& get_ssa() const = 0;
+        virtual const Array_gpu<TF,3>& get_g  () const = 0;
+
+        // Optional argument.
+        virtual void delta_scale(const Array_gpu<TF,3>& forward_frac=Array_gpu<TF,3>()) = 0;
+
+        virtual int get_ncol() const = 0;
+        virtual int get_nlay() const = 0;
+};
+
+template<typename TF>
+class Optical_props_1scl_gpu : public Optical_props_arry_gpu<TF>
+{
+    public:
+        // Initializer constructor.
+        Optical_props_1scl_gpu(
+                const int ncol,
+                const int nlay,
+                const Optical_props_gpu<TF>& optical_props_gpu);
+
+        int get_ncol() const { return tau.dim(1); }
+        int get_nlay() const { return tau.dim(2); }
+
+        Array_gpu<TF,3>& get_tau() { return tau; }
+        Array_gpu<TF,3>& get_ssa() { throw std::runtime_error("ssa is not available in this class"); }
+        Array_gpu<TF,3>& get_g  () { throw std::runtime_error("g is available in this class"); }
+
+        const Array_gpu<TF,3>& get_tau() const { return tau; }
+        const Array_gpu<TF,3>& get_ssa() const { throw std::runtime_error("ssa is not available in this class"); }
+        const Array_gpu<TF,3>& get_g  () const { throw std::runtime_error("g is available in this class"); }
+
+        void delta_scale(const Array_gpu<TF,3>& forward_frac=Array_gpu<TF,3>()) {}
+
+    private:
+        Array_gpu<TF,3> tau;
+};
+
+template<typename TF>
+class Optical_props_2str_gpu : public Optical_props_arry_gpu<TF>
+{
+    public:
+        Optical_props_2str_gpu(
+                const int ncol,
+                const int nlay,
+                const Optical_props_gpu<TF>& optical_props_gpu);
+
+        int get_ncol() const { return tau.dim(1); }
+        int get_nlay() const { return tau.dim(2); }
+
+        Array_gpu<TF,3>& get_tau() { return tau; }
+        Array_gpu<TF,3>& get_ssa() { return ssa; }
+        Array_gpu<TF,3>& get_g  () { return g; }
+
+        const Array_gpu<TF,3>& get_tau() const { return tau; }
+        const Array_gpu<TF,3>& get_ssa() const { return ssa; }
+        const Array_gpu<TF,3>& get_g  () const { return g; }
+
+        void delta_scale(const Array_gpu<TF,3>& forward_frac=Array_gpu<TF,3>());
+
+    private:
+        Array_gpu<TF,3> tau;
+        Array_gpu<TF,3> ssa;
+        Array_gpu<TF,3> g;
+};
+
+template<typename TF> void add_to(Optical_props_1scl_gpu<TF>& op_inout, const Optical_props_1scl_gpu<TF>& op_in);
+template<typename TF> void add_to(Optical_props_2str_gpu<TF>& op_inout, const Optical_props_2str_gpu<TF>& op_in);
+#endif
+
 #endif

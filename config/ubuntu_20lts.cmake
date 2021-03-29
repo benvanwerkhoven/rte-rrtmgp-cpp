@@ -10,7 +10,6 @@ endif()
 set(USER_CXX_FLAGS "-std=c++14")
 set(USER_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -march=native")
 set(USER_CXX_FLAGS_DEBUG "-O0 -g -Wall -Wno-unknown-pragmas")
-
 set(USER_FC_FLAGS "-fdefault-real-8 -fdefault-double-8 -fPIC -ffixed-line-length-none -fno-range-check")
 set(USER_FC_FLAGS_RELEASE "-DNDEBUG -O3 -march=native")
 set(USER_FC_FLAGS_DEBUG "-O0 -g -Wall -Wno-unknown-pragmas")

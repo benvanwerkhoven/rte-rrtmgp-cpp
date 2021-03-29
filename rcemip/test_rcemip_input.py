@@ -2,14 +2,14 @@ import numpy as np
 import netCDF4 as nc
 
 float_type = "f8"
-n_col = 32**2
+n_col = 64**2
 n_bnd_lw = 16
 n_bnd_sw = 14
 
 nc_file = nc.Dataset("rte_rrtmgp_input.nc", mode="w", datamodel="NETCDF4", clobber=True)
 
 # Radiation profiles.
-z_top = 100.e3
+z_top = 70.e3
 dz = 500.
 z  = np.arange(dz/2, z_top, dz)
 zh = np.arange(   0, z_top-dz/2, dz)

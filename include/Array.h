@@ -29,6 +29,13 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <fstream>
+
+#ifdef __CUDACC__
+#include "tools_gpu.h"
+template<typename T, int N> class Array_gpu;
+#endif
+
 
 template<int N>
 inline std::array<int, N> calc_strides(const std::array<int, N>& dims)
@@ -115,22 +122,35 @@ class Array
         Array(std::vector<T>&& data, const std::array<int, N>& dims) :
             dims(dims),
             ncells(product<N>(dims)),
-            data(data),
+            data(std::move(data)),
             strides(calc_strides<N>(dims)),
             offsets({})
         {} // CvH Do we need to size check data?
 
         // Define the default copy constructor and assignment operator.
-        // Array(const Array<T, N>&) = default;
-        // Array<T,N>& operator=(const Array<T, N>&) = default; // CvH does this one need empty checking?
+        Array(const Array<T, N>&) = default;
+        Array<T,N>& operator=(const Array<T, N>&) = default; // CvH does this one need empty checking?
 
-        // Array(Array<T, N>&& array) :
-        //     dims(std::exchange(array.dims, {})),
-        //     ncells(std::exchange(array.ncells, 0)),
-        //     data(std::move(array.data)),
-        //     strides(std::exchange(array.strides, {})),
-        //     offsets(std::exchange(array.offsets, {}))
-        // {}
+        // Implement the move constructor to set ncells back to 0.
+        Array(Array<T, N>&& array) :
+            dims(std::exchange(array.dims, {})),
+            ncells(std::exchange(array.ncells, 0)),
+            data(std::move(array.data)),
+            strides(std::exchange(array.strides, {})),
+            offsets(std::exchange(array.offsets, {}))
+        {}
+
+        #ifdef __CUDACC__
+        Array(const Array_gpu<T, N>& array_gpu) :
+            dims(array_gpu.dims),
+            ncells(array_gpu.ncells),
+            data(ncells),
+            strides(array_gpu.strides),
+            offsets(array_gpu.offsets)
+        {
+            cuda_safe_call(cudaMemcpy(data.data(), array_gpu.ptr(), ncells*sizeof(T), cudaMemcpyDeviceToHost));
+        }
+        #endif
 
         inline void set_offsets(const std::array<int, N>& offsets)
         {
@@ -214,15 +234,15 @@ class Array
             Array<T, N> a_sub(subdims);
             for (int i=0; i<a_sub.ncells; ++i)
             {
-                std::array<int, N> index;
+                std::array<int, N> indices;
                 int ic = i;
                 for (int n=N-1; n>0; --n)
                 {
-                    index[n] = do_spread[n] ? 1 : ic / a_sub.strides[n] + ranges[n].first;
+                    indices[n] = do_spread[n] ? 1 : ic / a_sub.strides[n] + ranges[n].first;
                     ic %= a_sub.strides[n];
                 }
-                index[0] = do_spread[0] ? 1 : ic + ranges[0].first;
-                a_sub.data[i] = (*this)(index);
+                indices[0] = do_spread[0] ? 1 : ic + ranges[0].first;
+                a_sub.data[i] = (*this)(indices);
             }
 
             return a_sub;
@@ -233,12 +253,345 @@ class Array
             std::fill(data.begin(), data.end(), value);
         }
 
+        inline void dump(const std::string& name) const
+        {
+            std::string file_name = name + ".bin";
+            std::ofstream binary_file(file_name, std::ios::out | std::ios::trunc | std::ios::binary);
+
+            if (binary_file)
+                binary_file.write(reinterpret_cast<const char*>(data.data()), ncells*sizeof(T));
+            else
+            {
+                std::string error = "Cannot write file \"" + file_name + "\"";
+                throw std::runtime_error(error);
+            }
+        }
+
     private:
         std::array<int, N> dims;
         int ncells;
         std::vector<T> data;
         std::array<int, N> strides;
         std::array<int, N> offsets;
+
+        #ifdef __CUDACC__
+        friend class Array_gpu<T, N>;
+        #endif
+};
+
+
+#ifdef __CUDACC__
+template<int N>
+struct Subset_data
+{
+    int sub_strides[N];
+    int strides[N];
+    int starts[N];
+    int offsets[N];
+    bool do_spread[N];
+};
+
+template<typename T, int N> __global__
+void subset_kernel(
+        T* __restrict__ a_sub,
+        const T* __restrict__ a,
+        Subset_data<N> subset_data,
+        const int ncells)
+{
+    const int idx_out = blockIdx.x*blockDim.x + threadIdx.x;
+
+    if (idx_out < ncells)
+    {
+        int ic = idx_out;
+        int idx_in = 0;
+
+        #pragma unroll
+        for (int n=N-1; n>=0; --n)
+        {
+            const int idx_dim = subset_data.do_spread[n] ? 1 : ic / subset_data.sub_strides[n] + subset_data.starts[n];
+            ic %= subset_data.sub_strides[n];
+
+            idx_in += (idx_dim - subset_data.offsets[n] - 1) * subset_data.strides[n];
+        }
+
+        a_sub[idx_out] = a[idx_in];
+    }
+    /*
+    for (int i=0; i<a_sub.ncells; ++i)
+    {
+        std::array<int, N> indices;
+        int ic = i;
+        for (int n=N-1; n>0; --n)
+        {
+            indices[n] = do_spread[n] ? 1 : ic / a_sub.strides[n] + ranges[n].first;
+            ic %= a_sub.strides[n];
+        }
+        indices[0] = do_spread[0] ? 1 : ic + ranges[0].first;
+    
+        const int index = calc_index<N>(indices, strides, offsets);
+        cuda_safe_call(cudaMemcpy(&a_sub.data_ptr[i], &data_ptr[index], sizeof(T), cudaMemcpyDeviceToDevice));
+    }
+    */
+}
+#endif
+
+
+template<typename T, int N>
+class Array_gpu
+{
+    public:
+        // Create an empty array, without dimensions.
+        Array_gpu() :
+            dims({}),
+            ncells(0),
+            data_ptr(nullptr)
+        {}
+
+        #ifdef __CUDACC__
+        ~Array_gpu() { cuda_safe_call(cudaFree(data_ptr)); }
+        #endif
+
+        #ifdef __CUDACC__
+        Array_gpu& operator=(const Array_gpu<T, N>& array)
+        {
+            if ( !(this->ncells == 0 && data_ptr == nullptr) )
+                throw std::runtime_error("Only arrays with uninitialized pointers can be resized");
+
+            dims = array.dims;
+            ncells = array.ncells;
+            strides = array.strides;
+            offsets = array.offsets;
+
+            cuda_safe_call(cudaMalloc((void **) &data_ptr, ncells*sizeof(T)));
+            cuda_safe_call(cudaMemcpy(data_ptr, array.ptr(), ncells*sizeof(T), cudaMemcpyDeviceToDevice));
+
+            return (*this);
+        }
+        #endif
+
+        #ifdef __CUDACC__
+        Array_gpu& operator=(Array_gpu<T, N>&& array)
+        {
+            if ( !(this->ncells == 0 && data_ptr == nullptr) )
+                throw std::runtime_error("Only arrays with uninitialized pointers can be resized");
+
+            dims = std::exchange(array.dims, {});
+            ncells = std::exchange(array.ncells, 0);
+            data_ptr = std::exchange(array.data_ptr, nullptr);
+            strides = std::exchange(array.strides, {});
+            offsets = std::exchange(array.offsets, {});
+
+            return (*this);
+        }
+        #endif
+
+        #ifdef __CUDACC__
+        Array_gpu(const Array_gpu<T, N>& array) :
+            dims(array.dims),
+            ncells(array.ncells),
+            data_ptr(nullptr),
+            strides(array.strides),
+            offsets(array.offsets)
+        {
+            cuda_safe_call(cudaMalloc((void **) &data_ptr, ncells*sizeof(T)));
+            cuda_safe_call(cudaMemcpy(data_ptr, array.ptr(), ncells*sizeof(T), cudaMemcpyDeviceToDevice));
+        }
+        #endif
+
+        #ifdef __CUDACC__
+        Array_gpu(Array_gpu<T, N>&& array) :
+            dims(std::exchange(array.dims, {})),
+            ncells(std::exchange(array.ncells, 0)),
+            data_ptr(std::exchange(array.data_ptr, nullptr)),
+            strides(std::exchange(array.strides, {})),
+            offsets(std::exchange(array.offsets, {}))
+        {}
+        #endif
+
+        #ifdef __CUDACC__
+        // Create an array of zeros with given dimensions.
+        Array_gpu(const std::array<int, N>& dims) :
+            dims(dims),
+            ncells(product<N>(dims)),
+            data_ptr(nullptr),
+            strides(calc_strides<N>(dims)),
+            offsets({})
+        {
+            cuda_safe_call(cudaMalloc((void **) &data_ptr, ncells*sizeof(T)));
+        }
+        #endif
+
+
+        #ifdef __CUDACC__
+        Array_gpu(const Array<T, N>& array) :
+            dims(array.dims),
+            ncells(array.ncells),
+            data_ptr(nullptr),
+            strides(array.strides),
+            offsets(array.offsets)
+        {
+            cuda_safe_call(cudaMalloc((void **) &data_ptr, ncells*sizeof(T)));
+            cuda_safe_call(cudaMemcpy(data_ptr, array.ptr(), ncells*sizeof(T), cudaMemcpyHostToDevice));
+        }
+        #endif
+
+        inline void set_offsets(const std::array<int, N>& offsets)
+        {
+            this->offsets = offsets;
+        }
+
+        inline std::array<int, N> get_dims() const { return dims; }
+
+        #ifdef __CUDACC__
+        inline void set_data(const Array<T, N>& array)
+        {
+            cuda_safe_call(cudaMalloc((void **) &data_ptr, ncells*sizeof(T)));
+            cuda_safe_call(cudaMemcpy(data_ptr, array.ptr(), ncells*sizeof(T), cudaMemcpyHostToDevice));
+        }
+        #endif
+
+        #ifdef __CUDACC__
+        inline void set_dims(const std::array<int, N>& dims)
+        {
+            if ( !(this->ncells == 0 && data_ptr == nullptr) )
+                throw std::runtime_error("Only arrays with uninitialized pointers can be resized");
+
+            this->dims = dims;
+            ncells = product<N>(dims);
+            cuda_safe_call(cudaMalloc((void **) &data_ptr, ncells*sizeof(T)));
+            strides = calc_strides<N>(dims);
+            offsets = {};
+        }
+        #endif
+
+        inline void copy(const std::array<int, N>& indices, Array_gpu<T, N>& input, const std::array<int, N>& indices_input) const
+        {
+            #ifdef __CUDACC__
+            const int index = calc_index<N>(indices, strides, offsets);
+            const int index_in =  calc_index<N>(indices_input, input.strides, input.offsets);
+            cuda_safe_call(cudaMemcpy(data_ptr + index, input.ptr() + index_in, sizeof(T), cudaMemcpyDeviceToDevice));
+            #endif
+        }
+
+        inline void insert(const std::array<int, N>& indices, const T value) const
+        {
+            #ifdef __CUDACC__
+            const int index = calc_index<N>(indices, strides, offsets);
+            cuda_safe_call(cudaMemcpy(data_ptr + index, &value, sizeof(T), cudaMemcpyHostToDevice));
+            #endif
+        }
+
+        inline T* ptr() { return data_ptr; }
+        inline const T* ptr() const { return data_ptr; }
+
+        inline int size() const { return ncells; }
+
+        // inline std::array<int, N> find_indices(const T& value) const
+        // {
+        //     int pos = std::find(data.begin(), data.end(), value) - data.begin();
+        //     return calc_indices<N>(pos, strides, offsets);
+        // }
+
+        #ifdef __CUDACC__
+        inline T operator()(const std::array<int, N>& indices) const
+        {
+            const int index = calc_index<N>(indices, strides, offsets);
+            T value;
+            cuda_safe_call(cudaMemcpy(&value, data_ptr + index, sizeof(T), cudaMemcpyDeviceToHost));
+            return value;
+        }
+        #endif
+
+        inline int dim(const int i) const { return dims[i-1]; }
+        // inline bool is_empty() const { return ncells == 0; }
+
+        #ifdef __CUDACC__
+        inline Array_gpu<T, N> subset(
+                const std::array<std::pair<int, int>, N> ranges) const
+        {
+            // Calculate the dimension sizes based on the range.
+            std::array<int, N> subdims;
+            std::array<bool, N> do_spread;
+
+            for (int i=0; i<N; ++i)
+            {
+                subdims[i] = ranges[i].second - ranges[i].first + 1;
+                // CvH how flexible / tolerant are we?
+                do_spread[i] = (dims[i] == 1);
+            }
+
+            // Create the array and fill it with the subset.
+            Array_gpu<T, N> a_sub(subdims);
+
+            Subset_data<N> subset_data;
+
+            for (int i=0; i<N; ++i)
+            {
+                subset_data.sub_strides[i] = a_sub.strides[i];
+                subset_data.strides[i] = strides[i];
+                subset_data.starts[i] = ranges[i].first;
+                subset_data.offsets[i] = offsets[i];
+                subset_data.do_spread[i] = do_spread[i];
+            }
+
+            constexpr int block_ncells = 64;
+            const int grid_ncells = a_sub.ncells/block_ncells + (a_sub.ncells%block_ncells > 0);
+
+            dim3 block_gpu(block_ncells);
+            dim3 grid_gpu(grid_ncells);
+
+            subset_kernel<<<grid_gpu, block_gpu>>>(a_sub.data_ptr, data_ptr, subset_data, a_sub.ncells);
+
+            /*
+            for (int i=0; i<a_sub.ncells; ++i)
+            {
+                std::array<int, N> indices;
+                int ic = i;
+                for (int n=N-1; n>0; --n)
+                {
+                    indices[n] = do_spread[n] ? 1 : ic / a_sub.strides[n] + ranges[n].first;
+                    ic %= a_sub.strides[n];
+                }
+                indices[0] = do_spread[0] ? 1 : ic + ranges[0].first;
+
+                const int index = calc_index<N>(indices, strides, offsets);
+                cuda_safe_call(cudaMemcpy(&a_sub.data_ptr[i], &data_ptr[index], sizeof(T), cudaMemcpyDeviceToDevice));
+            }
+            */
+
+            return a_sub;
+        }
+        #endif
+
+        // inline void fill(const T value)
+        // {
+        //     std::fill(data.begin(), data.end(), value);
+        // }
+
+        inline void dump(const std::string& name) const
+        {
+            std::string file_name = name + ".bin";
+            std::ofstream binary_file(file_name, std::ios::out | std::ios::trunc | std::ios::binary);
+
+            Array<T, N> array_dump(*this);
+
+            if (binary_file)
+                binary_file.write(reinterpret_cast<char*>(array_dump.ptr()), ncells*sizeof(T));
+            else
+            {
+                std::string error = "Cannot write file \"" + file_name + "\"";
+                throw std::runtime_error(error);
+            }
+        }
+
+    private:
+        std::array<int, N> dims;
+        int ncells;
+        T* data_ptr;
+        std::array<int, N> strides;
+        std::array<int, N> offsets;
+
+        friend class Array<T, N>;
 };
 
 template<typename T, int N>

@@ -31,7 +31,9 @@
 // Forward declarations.
 template<typename, int> class Array;
 class Optical_props_arry;
+template<typename, int> class Array_gpu;
 class Fluxes_broadband;
+template<typename> class Optical_props_arry_gpu;
 
 class Rte_sw
 {
@@ -53,4 +55,29 @@ class Rte_sw
                 const Array<Real,2> arr_in,
                 Array<Real,2>& arr_out);
 };
+
+#ifdef USECUDA
+template<typename TF>
+class Rte_sw_gpu
+{
+    public:
+        static void rte_sw(
+                const std::unique_ptr<Optical_props_arry_gpu<TF>>& optical_props,
+                const BOOL_TYPE top_at_1,
+                const Array_gpu<TF,1>& mu0,
+                const Array_gpu<TF,2>& inc_flux_dir,
+                const Array_gpu<TF,2>& sfc_alb_dir,
+                const Array_gpu<TF,2>& sfc_alb_dif,
+                const Array_gpu<TF,2>& inc_flux_dif,
+                Array_gpu<TF,3>& gpt_flux_up,
+                Array_gpu<TF,3>& gpt_flux_dn,
+                Array_gpu<TF,3>& gpt_flux_dir);
+
+        static void expand_and_transpose(
+                const std::unique_ptr<Optical_props_arry_gpu<TF>>& ops,
+                const Array_gpu<TF,2> arr_in,
+                Array_gpu<TF,2>& arr_out);
+};
+
+#endif
 #endif

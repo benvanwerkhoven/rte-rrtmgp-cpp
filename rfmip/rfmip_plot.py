@@ -74,6 +74,17 @@ plt.colorbar()
 plt.tight_layout()
 plt.show()
 
+plt.figure()
+plt.subplot(211)
+plt.plot( (rsd_run_2d - rsd_ref_2d)[0, :])
+plt.ylabel(r'surface error (W m$^{-2}$)')
+plt.subplot(212)
+plt.plot( (rsd_run_2d - rsd_ref_2d)[-1, :])
+plt.xlabel('experiment')
+plt.ylabel(r'toa error (W m$^{-2}$)')
+plt.tight_layout()
+plt.show()
+
 
 nc_file_run = nc.Dataset('rsu_Efx_RTE-RRTMGP-181204_rad-irf_r1i1p1f1_gn.nc', mode='r')
 nc_file_ref = nc.Dataset('reference/rsu_Efx_RTE-RRTMGP-181204_rad-irf_r1i1p1f1_gn.nc', mode='r')
