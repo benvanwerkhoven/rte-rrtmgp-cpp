@@ -11,7 +11,7 @@ FILE(GLOB sourcefiles
     "../rte-rrtmgp/rte/kernels/mo_fluxes_broadband_kernels.F90"
     "../rte-rrtmgp/extensions/mo_fluxes_byband_kernels.F90")
 
-if(FLOAT_TYPE STREQUAL "single")
+if(USESP)
     message(STATUS "Compiling RRTMGP kernels in single precision")
     add_library(rte_rrtmgp_kernels STATIC ${sourcefiles})
     target_compile_definitions(rte_rrtmgp_kernels PRIVATE REAL_TYPE=sp)
