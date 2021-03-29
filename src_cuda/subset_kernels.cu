@@ -176,6 +176,7 @@ namespace subset_kernel_launcher_cuda
     }
 
 
+    /*
     void copy_to_subset(const int ncol, const int nlay, const int nbnd, const int ncol_in, const int col_s_in,
                   Array_gpu<Real,3>& var1_full, Array_gpu<Real,3>& var2_full, Array_gpu<Real,3>& var3_full,
                   const Array_gpu<Real,3>& var1_sub, const Array_gpu<Real,3>& var2_sub, const Array_gpu<Real,3>& var3_sub)
@@ -194,6 +195,7 @@ namespace subset_kernel_launcher_cuda
                 ncol, nlay, nbnd, ncol_in, col_s_in, var1_full.ptr(), var2_full.ptr(),
                 var3_full.ptr(), var1_sub.ptr(), var2_sub.ptr(), var3_sub.ptr());
     }
+    */
 
 
     void get_from_subset(const int ncol, const int nbnd, const int ncol_in, const int col_s_in,
