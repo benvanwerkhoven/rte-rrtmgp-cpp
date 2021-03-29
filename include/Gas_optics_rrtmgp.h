@@ -35,8 +35,7 @@
 class Gas_concs;
 class Source_func_lw;
 
-template<typename TF>
-class Gas_optics_rrtmgp : public Gas_optics<TF>
+class Gas_optics_rrtmgp : public Gas_optics
 {
     public:
         // Constructor for longwave variant.
@@ -45,16 +44,16 @@ class Gas_optics_rrtmgp : public Gas_optics<TF>
                 const Array<std::string,1>& gas_names,
                 const Array<int,3>& key_species,
                 const Array<int,2>& band2gpt,
-                const Array<TF,2>& band_lims_wavenum,
-                const Array<TF,1>& press_ref,
-                const TF press_ref_trop,
-                const Array<TF,1>& temp_ref,
-                const TF temp_ref_p,
-                const TF temp_ref_t,
-                const Array<TF,3>& vmr_ref,
-                const Array<TF,4>& kmajor,
-                const Array<TF,3>& kminor_lower,
-                const Array<TF,3>& kminor_upper,
+                const Array<Real,2>& band_lims_wavenum,
+                const Array<Real,1>& press_ref,
+                const Real press_ref_trop,
+                const Array<Real,1>& temp_ref,
+                const Real temp_ref_p,
+                const Real temp_ref_t,
+                const Array<Real,3>& vmr_ref,
+                const Array<Real,4>& kmajor,
+                const Array<Real,3>& kminor_lower,
+                const Array<Real,3>& kminor_upper,
                 const Array<std::string,1>& gas_minor,
                 const Array<std::string,1>& identifier_minor,
                 const Array<std::string,1>& minor_gases_lower,
@@ -69,10 +68,10 @@ class Gas_optics_rrtmgp : public Gas_optics<TF>
                 const Array<Bool,1>& scale_by_complement_upper,
                 const Array<int,1>& kminor_start_lower,
                 const Array<int,1>& kminor_start_upper,
-                const Array<TF,2>& totplnk,
-                const Array<TF,4>& planck_frac,
-                const Array<TF,3>& rayl_lower,
-                const Array<TF,3>& rayl_upper);
+                const Array<Real,2>& totplnk,
+                const Array<Real,4>& planck_frac,
+                const Array<Real,3>& rayl_lower,
+                const Array<Real,3>& rayl_upper);
 
         // Constructor for longwave variant.
         Gas_optics_rrtmgp(
@@ -80,16 +79,16 @@ class Gas_optics_rrtmgp : public Gas_optics<TF>
                 const Array<std::string,1>& gas_names,
                 const Array<int,3>& key_species,
                 const Array<int,2>& band2gpt,
-                const Array<TF,2>& band_lims_wavenum,
-                const Array<TF,1>& press_ref,
-                const TF press_ref_trop,
-                const Array<TF,1>& temp_ref,
-                const TF temp_ref_p,
-                const TF temp_ref_t,
-                const Array<TF,3>& vmr_ref,
-                const Array<TF,4>& kmajor,
-                const Array<TF,3>& kminor_lower,
-                const Array<TF,3>& kminor_upper,
+                const Array<Real,2>& band_lims_wavenum,
+                const Array<Real,1>& press_ref,
+                const Real press_ref_trop,
+                const Array<Real,1>& temp_ref,
+                const Real temp_ref_p,
+                const Real temp_ref_t,
+                const Array<Real,3>& vmr_ref,
+                const Array<Real,4>& kmajor,
+                const Array<Real,3>& kminor_lower,
+                const Array<Real,3>& kminor_upper,
                 const Array<std::string,1>& gas_minor,
                 const Array<std::string,1>& identifier_minor,
                 const Array<std::string,1>& minor_gases_lower,
@@ -104,28 +103,28 @@ class Gas_optics_rrtmgp : public Gas_optics<TF>
                 const Array<Bool,1>& scale_by_complement_upper,
                 const Array<int,1>& kminor_start_lower,
                 const Array<int,1>& kminor_start_upper,
-                const Array<TF,1>& solar_src_quiet,
-                const Array<TF,1>& solar_src_facular,
-                const Array<TF,1>& solar_src_sunspot,
-                const TF tsi_default,
-                const TF mg_default,
-                const TF sb_default,
-                const Array<TF,3>& rayl_lower,
-                const Array<TF,3>& rayl_upper);
+                const Array<Real,1>& solar_src_quiet,
+                const Array<Real,1>& solar_src_facular,
+                const Array<Real,1>& solar_src_sunspot,
+                const Real tsi_default,
+                const Real mg_default,
+                const Real sb_default,
+                const Array<Real,3>& rayl_lower,
+                const Array<Real,3>& rayl_upper);
 
         static void get_col_dry(
-                Array<TF,2>& col_dry,
-                const Array<TF,2>& vmr_h2o,
-                const Array<TF,2>& plev);
+                Array<Real,2>& col_dry,
+                const Array<Real,2>& vmr_h2o,
+                const Array<Real,2>& plev);
 
         bool source_is_internal() const { return (totplnk.size() > 0) && (planck_frac.size() > 0); }
         bool source_is_external() const { return (solar_source.size() > 0); }
 
-        TF get_press_ref_min() const { return press_ref_min; }
-        TF get_press_ref_max() const { return press_ref_max; }
+        Real get_press_ref_min() const { return press_ref_min; }
+        Real get_press_ref_max() const { return press_ref_max; }
 
-        TF get_temp_min() const { return temp_ref_min; }
-        TF get_temp_max() const { return temp_ref_max; }
+        Real get_temp_min() const { return temp_ref_min; }
+        Real get_temp_max() const { return temp_ref_max; }
 
         int get_nflav() const { return flavor.dim(2); }
         int get_neta() const { return kmajor.dim(2); }
@@ -133,54 +132,54 @@ class Gas_optics_rrtmgp : public Gas_optics<TF>
         int get_ntemp() const { return kmajor.dim(4); }
         int get_nPlanckTemp() const { return totplnk.dim(1); }
 
-        TF get_tsi() const;
+        Real get_tsi() const;
 
         // Longwave variant.
         void gas_optics(
-                const Array<TF,2>& play,
-                const Array<TF,2>& plev,
-                const Array<TF,2>& tlay,
-                const Array<TF,1>& tsfc,
+                const Array<Real,2>& play,
+                const Array<Real,2>& plev,
+                const Array<Real,2>& tlay,
+                const Array<Real,1>& tsfc,
                 const Gas_concs& gas_desc,
                 std::unique_ptr<Optical_props_arry>& optical_props,
                 Source_func_lw& sources,
-                const Array<TF,2>& col_dry,
-                const Array<TF,2>& tlev) const;
+                const Array<Real,2>& col_dry,
+                const Array<Real,2>& tlev) const;
 
         // Shortwave variant.
         void gas_optics(
-                const Array<TF,2>& play,
-                const Array<TF,2>& plev,
-                const Array<TF,2>& tlay,
+                const Array<Real,2>& play,
+                const Array<Real,2>& plev,
+                const Array<Real,2>& tlay,
                 const Gas_concs& gas_desc,
                 std::unique_ptr<Optical_props_arry>& optical_props,
-                Array<TF,2>& toa_src,
-                const Array<TF,2>& col_dry) const;
+                Array<Real,2>& toa_src,
+                const Array<Real,2>& col_dry) const;
 
     private:
-        Array<TF,2> totplnk;
-        Array<TF,4> planck_frac;
-        TF totplnk_delta;
-        TF temp_ref_min, temp_ref_max;
-        TF press_ref_min, press_ref_max;
-        TF press_ref_trop_log;
+        Array<Real,2> totplnk;
+        Array<Real,4> planck_frac;
+        Real totplnk_delta;
+        Real temp_ref_min, temp_ref_max;
+        Real press_ref_min, press_ref_max;
+        Real press_ref_trop_log;
 
-        TF press_ref_log_delta;
-        TF temp_ref_delta;
+        Real press_ref_log_delta;
+        Real temp_ref_delta;
 
-        Array<TF,1> press_ref, press_ref_log, temp_ref;
+        Array<Real,1> press_ref, press_ref_log, temp_ref;
 
         Array<std::string,1> gas_names;
 
-        Array<TF,3> vmr_ref;
+        Array<Real,3> vmr_ref;
 
         Array<int,2> flavor;
         Array<int,2> gpoint_flavor;
 
-        Array<TF,4> kmajor;
+        Array<Real,4> kmajor;
 
-        Array<TF,3> kminor_lower;
-        Array<TF,3> kminor_upper;
+        Array<Real,3> kminor_lower;
+        Array<Real,3> kminor_upper;
 
         Array<int,2> minor_limits_gpt_lower;
         Array<int,2> minor_limits_gpt_upper;
@@ -202,12 +201,12 @@ class Gas_optics_rrtmgp : public Gas_optics<TF>
 
         Array<int,1> is_key;
 
-        Array<TF,1> solar_source_quiet;
-        Array<TF,1> solar_source_facular;
-        Array<TF,1> solar_source_sunspot;
-        Array<TF,1> solar_source;
+        Array<Real,1> solar_source_quiet;
+        Array<Real,1> solar_source_facular;
+        Array<Real,1> solar_source_sunspot;
+        Array<Real,1> solar_source;
 
-        Array<TF,4> krayl;
+        Array<Real,4> krayl;
 
         int get_ngas() const { return this->gas_names.dim(1); }
 
@@ -216,16 +215,16 @@ class Gas_optics_rrtmgp : public Gas_optics<TF>
                 const Array<std::string,1>& gas_names,
                 const Array<int,3>& key_species,
                 const Array<int,2>& band2gpt,
-                const Array<TF,2>& band_lims_wavenum,
-                const Array<TF,1>& press_ref,
-                const Array<TF,1>& temp_ref,
-                const TF press_ref_trop,
-                const TF temp_ref_p,
-                const TF temp_ref_t,
-                const Array<TF,3>& vmr_ref,
-                const Array<TF,4>& kmajor,
-                const Array<TF,3>& kminor_lower,
-                const Array<TF,3>& kminor_upper,
+                const Array<Real,2>& band_lims_wavenum,
+                const Array<Real,1>& press_ref,
+                const Array<Real,1>& temp_ref,
+                const Real press_ref_trop,
+                const Real temp_ref_p,
+                const Real temp_ref_t,
+                const Array<Real,3>& vmr_ref,
+                const Array<Real,4>& kmajor,
+                const Array<Real,3>& kminor_lower,
+                const Array<Real,3>& kminor_upper,
                 const Array<std::string,1>& gas_minor,
                 const Array<std::string,1>& identifier_minor,
                 const Array<std::string,1>& minor_gases_lower,
@@ -240,39 +239,39 @@ class Gas_optics_rrtmgp : public Gas_optics<TF>
                 const Array<Bool,1>& scale_by_complement_upper,
                 const Array<int,1>& kminor_start_lower,
                 const Array<int,1>& kminor_start_upper,
-                const Array<TF,3>& rayl_lower,
-                const Array<TF,3>& rayl_upper);
+                const Array<Real,3>& rayl_lower,
+                const Array<Real,3>& rayl_upper);
 
         void set_solar_variability(
-                const TF md_index, const TF sb_index);
+                const Real md_index, const Real sb_index);
 
         void compute_gas_taus(
                 const int ncol, const int nlay, const int ngpt, const int nband,
-                const Array<TF,2>& play,
-                const Array<TF,2>& plev,
-                const Array<TF,2>& tlay,
+                const Array<Real,2>& play,
+                const Array<Real,2>& plev,
+                const Array<Real,2>& tlay,
                 const Gas_concs& gas_desc,
                 std::unique_ptr<Optical_props_arry>& optical_props,
                 Array<int,2>& jtemp, Array<int,2>& jpress,
                 Array<int,4>& jeta,
                 Array<Bool,2>& tropo,
-                Array<TF,6>& fmajor,
-                const Array<TF,2>& col_dry) const;
+                Array<Real,6>& fmajor,
+                const Array<Real,2>& col_dry) const;
 
         void combine_and_reorder(
-                const Array<TF,3>& tau,
-                const Array<TF,3>& tau_rayleigh,
+                const Array<Real,3>& tau,
+                const Array<Real,3>& tau_rayleigh,
                 const bool has_rayleigh,
                 std::unique_ptr<Optical_props_arry>& optical_props) const;
 
         void source(
                 const int ncol, const int nlay, const int nband, const int ngpt,
-                const Array<TF,2>& play, const Array<TF,2>& plev,
-                const Array<TF,2>& tlay, const Array<TF,1>& tsfc,
+                const Array<Real,2>& play, const Array<Real,2>& plev,
+                const Array<Real,2>& tlay, const Array<Real,1>& tsfc,
                 const Array<int,2>& jtemp, const Array<int,2>& jpress,
                 const Array<int,4>& jeta, const Array<Bool,2>& tropo,
-                const Array<TF,6>& fmajor,
+                const Array<Real,6>& fmajor,
                 Source_func_lw& sources,
-                const Array<TF,2>& tlev) const;
+                const Array<Real,2>& tlev) const;
 };
 #endif

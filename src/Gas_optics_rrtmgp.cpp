@@ -47,13 +47,12 @@ namespace
             return it - data.v().begin() + 1;
     }
 
-    template<typename TF>
     void reduce_minor_arrays(
                 const Gas_concs& available_gases,
                 const Array<std::string,1>& gas_names,
                 const Array<std::string,1>& gas_minor,
                 const Array<std::string,1>& identifier_minor,
-                const Array<TF,3>& kminor_atm,
+                const Array<Real,3>& kminor_atm,
                 const Array<std::string,1>& minor_gases_atm,
                 const Array<int,2>& minor_limits_gpt_atm,
                 const Array<Bool,1>& minor_scales_with_density_atm,
@@ -61,7 +60,7 @@ namespace
                 const Array<Bool,1>& scale_by_complement_atm,
                 const Array<int,1>& kminor_start_atm,
 
-                Array<TF,3>& kminor_atm_red,
+                Array<Real,3>& kminor_atm_red,
                 Array<std::string,1>& minor_gases_atm_red,
                 Array<int,2>& minor_limits_gpt_atm_red,
                 Array<Bool,1>& minor_scales_with_density_atm_red,
@@ -351,9 +350,9 @@ namespace
     }
 
     /*
-    template<typename TF>
+    template<typename Real>
     inline void reorder123x321_test(
-            TF* restrict out, const TF* restrict in,
+            Real* restrict out, const Real* restrict in,
             const int d1, const int d2, const int d3)
     {
         const int jj_in = d1;
@@ -377,22 +376,21 @@ namespace
 
 // IMPLEMENTATION OF CLASS FUNCTIONS.
 // Constructor of longwave variant.
-template<typename TF>
-Gas_optics_rrtmgp<TF>::Gas_optics_rrtmgp(
+Gas_optics_rrtmgp::Gas_optics_rrtmgp(
         const Gas_concs& available_gases,
         const Array<std::string,1>& gas_names,
         const Array<int,3>& key_species,
         const Array<int,2>& band2gpt,
-        const Array<TF,2>& band_lims_wavenum,
-        const Array<TF,1>& press_ref,
-        const TF press_ref_trop,
-        const Array<TF,1>& temp_ref,
-        const TF temp_ref_p,
-        const TF temp_ref_t,
-        const Array<TF,3>& vmr_ref,
-        const Array<TF,4>& kmajor,
-        const Array<TF,3>& kminor_lower,
-        const Array<TF,3>& kminor_upper,
+        const Array<Real,2>& band_lims_wavenum,
+        const Array<Real,1>& press_ref,
+        const Real press_ref_trop,
+        const Array<Real,1>& temp_ref,
+        const Real temp_ref_p,
+        const Real temp_ref_t,
+        const Array<Real,3>& vmr_ref,
+        const Array<Real,4>& kmajor,
+        const Array<Real,3>& kminor_lower,
+        const Array<Real,3>& kminor_upper,
         const Array<std::string,1>& gas_minor,
         const Array<std::string,1>& identifier_minor,
         const Array<std::string,1>& minor_gases_lower,
@@ -407,11 +405,11 @@ Gas_optics_rrtmgp<TF>::Gas_optics_rrtmgp(
         const Array<Bool,1>& scale_by_complement_upper,
         const Array<int,1>& kminor_start_lower,
         const Array<int,1>& kminor_start_upper,
-        const Array<TF,2>& totplnk,
-        const Array<TF,4>& planck_frac,
-        const Array<TF,3>& rayl_lower,
-        const Array<TF,3>& rayl_upper) :
-            Gas_optics<TF>(band_lims_wavenum, band2gpt),
+        const Array<Real,2>& totplnk,
+        const Array<Real,4>& planck_frac,
+        const Array<Real,3>& rayl_lower,
+        const Array<Real,3>& rayl_upper) :
+            Gas_optics(band_lims_wavenum, band2gpt),
             totplnk(totplnk),
             planck_frac(planck_frac)
 {
@@ -445,22 +443,21 @@ Gas_optics_rrtmgp<TF>::Gas_optics_rrtmgp(
 }
 
 // Constructor of the shortwave variant.
-template<typename TF>
-Gas_optics_rrtmgp<TF>::Gas_optics_rrtmgp(
+Gas_optics_rrtmgp::Gas_optics_rrtmgp(
         const Gas_concs& available_gases,
         const Array<std::string,1>& gas_names,
         const Array<int,3>& key_species,
         const Array<int,2>& band2gpt,
-        const Array<TF,2>& band_lims_wavenum,
-        const Array<TF,1>& press_ref,
-        const TF press_ref_trop,
-        const Array<TF,1>& temp_ref,
-        const TF temp_ref_p,
-        const TF temp_ref_t,
-        const Array<TF,3>& vmr_ref,
-        const Array<TF,4>& kmajor,
-        const Array<TF,3>& kminor_lower,
-        const Array<TF,3>& kminor_upper,
+        const Array<Real,2>& band_lims_wavenum,
+        const Array<Real,1>& press_ref,
+        const Real press_ref_trop,
+        const Array<Real,1>& temp_ref,
+        const Real temp_ref_p,
+        const Real temp_ref_t,
+        const Array<Real,3>& vmr_ref,
+        const Array<Real,4>& kmajor,
+        const Array<Real,3>& kminor_lower,
+        const Array<Real,3>& kminor_upper,
         const Array<std::string,1>& gas_minor,
         const Array<std::string,1>& identifier_minor,
         const Array<std::string,1>& minor_gases_lower,
@@ -475,15 +472,15 @@ Gas_optics_rrtmgp<TF>::Gas_optics_rrtmgp(
         const Array<Bool,1>& scale_by_complement_upper,
         const Array<int,1>& kminor_start_lower,
         const Array<int,1>& kminor_start_upper,
-        const Array<TF,1>& solar_source_quiet,
-        const Array<TF,1>& solar_source_facular,
-        const Array<TF,1>& solar_source_sunspot,
-        const TF tsi_default,
-        const TF mg_default,
-        const TF sb_default,
-        const Array<TF,3>& rayl_lower,
-        const Array<TF,3>& rayl_upper) :
-            Gas_optics<TF>(band_lims_wavenum, band2gpt)
+        const Array<Real,1>& solar_source_quiet,
+        const Array<Real,1>& solar_source_facular,
+        const Array<Real,1>& solar_source_sunspot,
+        const Real tsi_default,
+        const Real mg_default,
+        const Real sb_default,
+        const Array<Real,3>& rayl_lower,
+        const Array<Real,3>& rayl_upper) :
+            Gas_optics(band_lims_wavenum, band2gpt)
 {
     // Initialize the absorption coefficient array, including Rayleigh scattering
     // tables if provided.
@@ -518,22 +515,21 @@ Gas_optics_rrtmgp<TF>::Gas_optics_rrtmgp(
     set_solar_variability(mg_default, sb_default);
 }
 
-template<typename TF>
-void Gas_optics_rrtmgp<TF>::init_abs_coeffs(
+void Gas_optics_rrtmgp::init_abs_coeffs(
         const Gas_concs& available_gases,
         const Array<std::string,1>& gas_names,
         const Array<int,3>& key_species,
         const Array<int,2>& band2gpt,
-        const Array<TF,2>& band_lims_wavenum,
-        const Array<TF,1>& press_ref,
-        const Array<TF,1>& temp_ref,
-        const TF press_ref_trop,
-        const TF temp_ref_p,
-        const TF temp_ref_t,
-        const Array<TF,3>& vmr_ref,
-        const Array<TF,4>& kmajor,
-        const Array<TF,3>& kminor_lower,
-        const Array<TF,3>& kminor_upper,
+        const Array<Real,2>& band_lims_wavenum,
+        const Array<Real,1>& press_ref,
+        const Array<Real,1>& temp_ref,
+        const Real press_ref_trop,
+        const Real temp_ref_p,
+        const Real temp_ref_t,
+        const Array<Real,3>& vmr_ref,
+        const Array<Real,4>& kmajor,
+        const Array<Real,3>& kminor_lower,
+        const Array<Real,3>& kminor_upper,
         const Array<std::string,1>& gas_minor,
         const Array<std::string,1>& identifier_minor,
         const Array<std::string,1>& minor_gases_lower,
@@ -548,8 +544,8 @@ void Gas_optics_rrtmgp<TF>::init_abs_coeffs(
         const Array<Bool,1>& scale_by_complement_upper,
         const Array<int,1>& kminor_start_lower,
         const Array<int,1>& kminor_start_upper,
-        const Array<TF,3>& rayl_lower,
-        const Array<TF,3>& rayl_upper)
+        const Array<Real,3>& rayl_lower,
+        const Array<Real,3>& rayl_upper)
 {
     // Which gases known to the gas optics are present in the host model (available_gases)?
     std::vector<std::string> gas_names_to_use;
@@ -569,7 +565,7 @@ void Gas_optics_rrtmgp<TF>::init_abs_coeffs(
     // Initialize the gas optics object, keeping only those gases known to the
     // gas optics and also present in the host model.
     // Add an offset to the indexing to interface the negative ranging of fortran.
-    Array<TF,3> vmr_ref_red({vmr_ref.dim(1), n_gas + 1, vmr_ref.dim(3)});
+    Array<Real,3> vmr_ref_red({vmr_ref.dim(1), n_gas + 1, vmr_ref.dim(3)});
     vmr_ref_red.set_offsets({0, -1, 0});
 
     // Gas 0 is used in single-key species method, set to 1.0 (col_dry)
@@ -714,12 +710,11 @@ void Gas_optics_rrtmgp<TF>::init_abs_coeffs(
     this->is_key = is_key;
 }
 
-template<typename TF>
-void Gas_optics_rrtmgp<TF>::set_solar_variability(
-        const TF mg_index, const TF sb_index)
+void Gas_optics_rrtmgp::set_solar_variability(
+        const Real mg_index, const Real sb_index)
 {
-    constexpr TF a_offset = TF(0.1495954);
-    constexpr TF b_offset = TF(0.00066696);
+    constexpr Real a_offset = Real(0.1495954);
+    constexpr Real b_offset = Real(0.00066696);
 
     for (int igpt=1; igpt<=this->solar_source_quiet.dim(1); ++igpt)
     {
@@ -734,20 +729,19 @@ void Gas_optics_rrtmgp<TF>::set_solar_variability(
 
 
 // Calculate the molecules of dry air.
-template<typename TF>
-void Gas_optics_rrtmgp<TF>::get_col_dry(
-        Array<TF,2>& col_dry, const Array<TF,2>& vmr_h2o,
-        const Array<TF,2>& plev)
+void Gas_optics_rrtmgp::get_col_dry(
+        Array<Real,2>& col_dry, const Array<Real,2>& vmr_h2o,
+        const Array<Real,2>& plev)
 {
     // CvH: RRTMGP uses more accurate method based on latitude.
-    constexpr TF g0 = 9.80665;
+    constexpr Real g0 = 9.80665;
 
-    constexpr TF avogad = 6.02214076e23;
-    constexpr TF m_dry = 0.028964;
-    constexpr TF m_h2o = 0.018016;
+    constexpr Real avogad = 6.02214076e23;
+    constexpr Real m_dry = 0.028964;
+    constexpr Real m_h2o = 0.018016;
 
-    Array<TF,2> delta_plev({col_dry.dim(1), col_dry.dim(2)});
-    Array<TF,2> m_air     ({col_dry.dim(1), col_dry.dim(2)});
+    Array<Real,2> delta_plev({col_dry.dim(1), col_dry.dim(2)});
+    Array<Real,2> m_air     ({col_dry.dim(1), col_dry.dim(2)});
 
     for (int ilay=1; ilay<=col_dry.dim(2); ++ilay)
         for (int icol=1; icol<=col_dry.dim(1); ++icol)
@@ -760,23 +754,22 @@ void Gas_optics_rrtmgp<TF>::get_col_dry(
     for (int ilay=1; ilay<=col_dry.dim(2); ++ilay)
         for (int icol=1; icol<=col_dry.dim(1); ++icol)
         {
-            col_dry({icol, ilay}) = TF(10.) * delta_plev({icol, ilay}) * avogad / (TF(1000.)*m_air({icol, ilay})*TF(100.)*g0);
-            col_dry({icol, ilay}) /= (TF(1.) + vmr_h2o({icol, ilay}));
+            col_dry({icol, ilay}) = Real(10.) * delta_plev({icol, ilay}) * avogad / (Real(1000.)*m_air({icol, ilay})*Real(100.)*g0);
+            col_dry({icol, ilay}) /= (Real(1.) + vmr_h2o({icol, ilay}));
         }
 }
 
 // Gas optics solver longwave variant.
-template<typename TF>
-void Gas_optics_rrtmgp<TF>::gas_optics(
-        const Array<TF,2>& play,
-        const Array<TF,2>& plev,
-        const Array<TF,2>& tlay,
-        const Array<TF,1>& tsfc,
+void Gas_optics_rrtmgp::gas_optics(
+        const Array<Real,2>& play,
+        const Array<Real,2>& plev,
+        const Array<Real,2>& tlay,
+        const Array<Real,1>& tsfc,
         const Gas_concs& gas_desc,
         std::unique_ptr<Optical_props_arry>& optical_props,
         Source_func_lw& sources,
-        const Array<TF,2>& col_dry,
-        const Array<TF,2>& tlev) const
+        const Array<Real,2>& col_dry,
+        const Array<Real,2>& tlev) const
 {
     const int ncol = play.dim(1);
     const int nlay = play.dim(2);
@@ -796,14 +789,14 @@ void Gas_optics_rrtmgp<TF>::gas_optics(
     if (any_vals_outside(tsfc, this->temp_ref_min, this->temp_ref_max))
         throw std::range_error("tsfc is out of range");
 
-    if (any_vals_less_than(col_dry, TF(0.)))
+    if (any_vals_less_than(col_dry, Real(0.)))
         throw std::range_error("col_dry is out of range");
     // End of checks.
 
     Array<int,2> jtemp({play.dim(1), play.dim(2)});
     Array<int,2> jpress({play.dim(1), play.dim(2)});
     Array<Bool,2> tropo({play.dim(1), play.dim(2)});
-    Array<TF,6> fmajor({2, 2, 2, this->get_nflav(), play.dim(1), play.dim(2)});
+    Array<Real,6> fmajor({2, 2, 2, this->get_nflav(), play.dim(1), play.dim(2)});
     Array<int,4> jeta({2, this->get_nflav(), play.dim(1), play.dim(2)});
 
     // Gas optics.
@@ -823,15 +816,14 @@ void Gas_optics_rrtmgp<TF>::gas_optics(
 }
 
 // Gas optics solver shortwave variant.
-template<typename TF>
-void Gas_optics_rrtmgp<TF>::gas_optics(
-        const Array<TF,2>& play,
-        const Array<TF,2>& plev,
-        const Array<TF,2>& tlay,
+void Gas_optics_rrtmgp::gas_optics(
+        const Array<Real,2>& play,
+        const Array<Real,2>& plev,
+        const Array<Real,2>& tlay,
         const Gas_concs& gas_desc,
         std::unique_ptr<Optical_props_arry>& optical_props,
-        Array<TF,2>& toa_src,
-        const Array<TF,2>& col_dry) const
+        Array<Real,2>& toa_src,
+        const Array<Real,2>& col_dry) const
 {
     const int ncol = play.dim(1);
     const int nlay = play.dim(2);
@@ -847,14 +839,14 @@ void Gas_optics_rrtmgp<TF>::gas_optics(
     if (any_vals_outside(tlay, this->temp_ref_min, this->temp_ref_max))
         throw std::range_error("tlay is out of range");
 
-    if (any_vals_less_than(col_dry, TF(0.)))
+    if (any_vals_less_than(col_dry, Real(0.)))
         throw std::range_error("col_dry is out of range");
     // End of checks.
 
     Array<int,2> jtemp({play.dim(1), play.dim(2)});
     Array<int,2> jpress({play.dim(1), play.dim(2)});
     Array<Bool,2> tropo({play.dim(1), play.dim(2)});
-    Array<TF,6> fmajor({2, 2, 2, this->get_nflav(), play.dim(1), play.dim(2)});
+    Array<Real,6> fmajor({2, 2, 2, this->get_nflav(), play.dim(1), play.dim(2)});
     Array<int,4> jeta({2, this->get_nflav(), play.dim(1), play.dim(2)});
 
     // Gas optics.
@@ -873,36 +865,35 @@ void Gas_optics_rrtmgp<TF>::gas_optics(
 
 namespace rrtmgp_kernel_launcher
 {
-    template<typename TF> void zero_array(
-            int ni, int nj, int nk, Array<TF,3>& array)
+    void zero_array(
+            int ni, int nj, int nk, Array<Real,3>& array)
     {
         rrtmgp_kernels::zero_array_3D(&ni, &nj, &nk, array.ptr());
     }
 
-    template<typename TF> void zero_array(
-            int ni, int nj, int nk, int nl, Array<TF,4>& array)
+    void zero_array(
+            int ni, int nj, int nk, int nl, Array<Real,4>& array)
     {
         rrtmgp_kernels::zero_array_4D(&ni, &nj, &nk, &nl, array.ptr());
     }
 
-    template<typename TF>
     void interpolation(
             int ncol, int nlay,
             int ngas, int nflav, int neta, int npres, int ntemp,
             const Array<int,2>& flavor,
-            const Array<TF,1>& press_ref_log,
-            const Array<TF,1>& temp_ref,
-            TF press_ref_log_delta,
-            TF temp_ref_min,
-            TF temp_ref_delta,
-            TF press_ref_trop_log,
-            const Array<TF,3>& vmr_ref,
-            const Array<TF,2>& play,
-            const Array<TF,2>& tlay,
-            Array<TF,3>& col_gas,
+            const Array<Real,1>& press_ref_log,
+            const Array<Real,1>& temp_ref,
+            Real press_ref_log_delta,
+            Real temp_ref_min,
+            Real temp_ref_delta,
+            Real press_ref_trop_log,
+            const Array<Real,3>& vmr_ref,
+            const Array<Real,2>& play,
+            const Array<Real,2>& tlay,
+            Array<Real,3>& col_gas,
             Array<int,2>& jtemp,
-            Array<TF,6>& fmajor, Array<TF,5>& fminor,
-            Array<TF,4>& col_mix,
+            Array<Real,6>& fmajor, Array<Real,5>& fminor,
+            Array<Real,4>& col_mix,
             Array<Bool,2>& tropo,
             Array<int,4>& jeta,
             Array<int,2>& jpress)
@@ -911,15 +902,15 @@ namespace rrtmgp_kernel_launcher
                 &ncol, &nlay,
                 &ngas, &nflav, &neta, &npres, &ntemp,
                 const_cast<int*>(flavor.ptr()),
-                const_cast<TF*>(press_ref_log.ptr()),
-                const_cast<TF*>(temp_ref.ptr()),
+                const_cast<Real*>(press_ref_log.ptr()),
+                const_cast<Real*>(temp_ref.ptr()),
                 &press_ref_log_delta,
                 &temp_ref_min,
                 &temp_ref_delta,
                 &press_ref_trop_log,
-                const_cast<TF*>(vmr_ref.ptr()),
-                const_cast<TF*>(play.ptr()),
-                const_cast<TF*>(tlay.ptr()),
+                const_cast<Real*>(vmr_ref.ptr()),
+                const_cast<Real*>(play.ptr()),
+                const_cast<Real*>(tlay.ptr()),
                 col_gas.ptr(),
                 jtemp.ptr(),
                 fmajor.ptr(), fminor.ptr(),
@@ -929,7 +920,6 @@ namespace rrtmgp_kernel_launcher
                 jpress.ptr());
     }
 
-    template<typename TF>
     void compute_tau_absorption(
             int ncol, int nlay, int nband, int ngpt,
             int ngas, int nflav, int neta, int npres, int ntemp,
@@ -938,9 +928,9 @@ namespace rrtmgp_kernel_launcher
             int idx_h2o,
             const Array<int,2>& gpoint_flavor,
             const Array<int,2>& band_lims_gpt,
-            const Array<TF,4>& kmajor,
-            const Array<TF,3>& kminor_lower,
-            const Array<TF,3>& kminor_upper,
+            const Array<Real,4>& kmajor,
+            const Array<Real,3>& kminor_lower,
+            const Array<Real,3>& kminor_upper,
             const Array<int,2>& minor_limits_gpt_lower,
             const Array<int,2>& minor_limits_gpt_upper,
             const Array<Bool,1>& minor_scales_with_density_lower,
@@ -954,11 +944,11 @@ namespace rrtmgp_kernel_launcher
             const Array<int,1>& kminor_start_lower,
             const Array<int,1>& kminor_start_upper,
             const Array<Bool,2>& tropo,
-            const Array<TF,4>& col_mix, const Array<TF,6>& fmajor,
-            const Array<TF,5>& fminor, const Array<TF,2>& play,
-            const Array<TF,2>& tlay, Array<TF,3>& col_gas,
+            const Array<Real,4>& col_mix, const Array<Real,6>& fmajor,
+            const Array<Real,5>& fminor, const Array<Real,2>& play,
+            const Array<Real,2>& tlay, Array<Real,3>& col_gas,
             const Array<int,4>& jeta, const Array<int,2>& jtemp,
-            const Array<int,2>& jpress, Array<TF,3>& tau)
+            const Array<int,2>& jpress, Array<Real,3>& tau)
     {
         rrtmgp_kernels::compute_tau_absorption(
             &ncol, &nlay, &nband, &ngpt,
@@ -968,9 +958,9 @@ namespace rrtmgp_kernel_launcher
             &idx_h2o,
             const_cast<int*>(gpoint_flavor.ptr()),
             const_cast<int*>(band_lims_gpt.ptr()),
-            const_cast<TF*>(kmajor.ptr()),
-            const_cast<TF*>(kminor_lower.ptr()),
-            const_cast<TF*>(kminor_upper.ptr()),
+            const_cast<Real*>(kmajor.ptr()),
+            const_cast<Real*>(kminor_lower.ptr()),
+            const_cast<Real*>(kminor_upper.ptr()),
             const_cast<int*>(minor_limits_gpt_lower.ptr()),
             const_cast<int*>(minor_limits_gpt_upper.ptr()),
             const_cast<Bool*>(minor_scales_with_density_lower.ptr()),
@@ -984,114 +974,109 @@ namespace rrtmgp_kernel_launcher
             const_cast<int*>(kminor_start_lower.ptr()),
             const_cast<int*>(kminor_start_upper.ptr()),
             const_cast<Bool*>(tropo.ptr()),
-            const_cast<TF*>(col_mix.ptr()), const_cast<TF*>(fmajor.ptr()), const_cast<TF*>(fminor.ptr()),
-            const_cast<TF*>(play.ptr()), const_cast<TF*>(tlay.ptr()), const_cast<TF*>(col_gas.ptr()),
+            const_cast<Real*>(col_mix.ptr()), const_cast<Real*>(fmajor.ptr()), const_cast<Real*>(fminor.ptr()),
+            const_cast<Real*>(play.ptr()), const_cast<Real*>(tlay.ptr()), const_cast<Real*>(col_gas.ptr()),
             const_cast<int*>(jeta.ptr()), const_cast<int*>(jtemp.ptr()), const_cast<int*>(jpress.ptr()),
             tau.ptr());
     }
 
-    template<typename TF>
     void compute_tau_rayleigh(
             int ncol, int nlay, int nband, int ngpt,
             int ngas, int nflav, int neta, int npres, int ntemp,
             const Array<int,2>& gpoint_flavor,
             const Array<int,2>& band_lims_gpt,
-            const Array<TF,4>& krayl,
-            int idx_h2o, const Array<TF,2>& col_dry, const Array<TF,3>& col_gas,
-            const Array<TF,5>& fminor, const Array<int,4>& jeta,
+            const Array<Real,4>& krayl,
+            int idx_h2o, const Array<Real,2>& col_dry, const Array<Real,3>& col_gas,
+            const Array<Real,5>& fminor, const Array<int,4>& jeta,
             const Array<Bool,2>& tropo, const Array<int,2>& jtemp,
-            Array<TF,3>& tau_rayleigh)
+            Array<Real,3>& tau_rayleigh)
     {
         rrtmgp_kernels::compute_tau_rayleigh(
                 &ncol, &nlay, &nband, &ngpt,
                 &ngas, &nflav, &neta, &npres, &ntemp,
                 const_cast<int*>(gpoint_flavor.ptr()),
                 const_cast<int*>(band_lims_gpt.ptr()),
-                const_cast<TF*>(krayl.ptr()),
+                const_cast<Real*>(krayl.ptr()),
                 &idx_h2o,
-                const_cast<TF*>(col_dry.ptr()), const_cast<TF*>(col_gas.ptr()),
-                const_cast<TF*>(fminor.ptr()), const_cast<int*>(jeta.ptr()),
+                const_cast<Real*>(col_dry.ptr()), const_cast<Real*>(col_gas.ptr()),
+                const_cast<Real*>(fminor.ptr()), const_cast<int*>(jeta.ptr()),
                 const_cast<Bool*>(tropo.ptr()), const_cast<int*>(jtemp.ptr()),
                 tau_rayleigh.ptr());
     }
 
-    template<typename TF>
     void reorder123x321(
-            const Array<TF,3>& data,
-            Array<TF,3>& data_out)
+            const Array<Real,3>& data,
+            Array<Real,3>& data_out)
     {
         int dim1 = data.dim(1);
         int dim2 = data.dim(2);
         int dim3 = data.dim(3);
         rrtmgp_kernels::reorder_123x321_kernel(
                 &dim1, &dim2, &dim3,
-                const_cast<TF*>(data.ptr()),
+                const_cast<Real*>(data.ptr()),
                 data_out.ptr());
     }
 
-    template<typename TF>
     void combine_and_reorder_2str(
             int ncol, int nlay, int ngpt,
-            const Array<TF,3>& tau_local, const Array<TF,3>& tau_rayleigh,
-            Array<TF,3>& tau, Array<TF,3>& ssa, Array<TF,3>& g)
+            const Array<Real,3>& tau_local, const Array<Real,3>& tau_rayleigh,
+            Array<Real,3>& tau, Array<Real,3>& ssa, Array<Real,3>& g)
     {
         rrtmgp_kernels::combine_and_reorder_2str(
                 &ncol, &nlay, &ngpt,
-                const_cast<TF*>(tau_local.ptr()), const_cast<TF*>(tau_rayleigh.ptr()),
+                const_cast<Real*>(tau_local.ptr()), const_cast<Real*>(tau_rayleigh.ptr()),
                 tau.ptr(), ssa.ptr(), g.ptr());
     }
 
-    template<typename TF>
     void compute_Planck_source(
             int ncol, int nlay, int nbnd, int ngpt,
             int nflav, int neta, int npres, int ntemp, int nPlanckTemp,
-            const Array<TF,2>& tlay, const Array<TF,2>& tlev, const Array<TF,1>& tsfc, int sfc_lay,
-            const Array<TF,6>& fmajor, const Array<int,4>& jeta, const Array<Bool,2>& tropo, const Array<int,2>& jtemp, const Array<int,2>& jpress,
-            const Array<int,1>& gpoint_bands, const Array<int,2>& band_lims_gpt, const Array<TF,4>& pfracin, TF temp_ref_min,
-            TF totplnk_delta, const Array<TF,2>& totplnk, const Array<int,2>& gpoint_flavor,
-            Array<TF,2>& sfc_src, Array<TF,3>& lay_src, Array<TF,3>& lev_src_inc, Array<TF,3>& lev_src_dec,
-            Array<TF,2>& sfc_src_jac)
+            const Array<Real,2>& tlay, const Array<Real,2>& tlev, const Array<Real,1>& tsfc, int sfc_lay,
+            const Array<Real,6>& fmajor, const Array<int,4>& jeta, const Array<Bool,2>& tropo, const Array<int,2>& jtemp, const Array<int,2>& jpress,
+            const Array<int,1>& gpoint_bands, const Array<int,2>& band_lims_gpt, const Array<Real,4>& pfracin, Real temp_ref_min,
+            Real totplnk_delta, const Array<Real,2>& totplnk, const Array<int,2>& gpoint_flavor,
+            Array<Real,2>& sfc_src, Array<Real,3>& lay_src, Array<Real,3>& lev_src_inc, Array<Real,3>& lev_src_dec,
+            Array<Real,2>& sfc_src_jac)
     {
         rrtmgp_kernels::compute_Planck_source(
                 &ncol, &nlay, &nbnd, &ngpt,
                 &nflav, &neta, &npres, &ntemp, &nPlanckTemp,
-                const_cast<TF*>(tlay.ptr()),
-                const_cast<TF*>(tlev.ptr()),
-                const_cast<TF*>(tsfc.ptr()),
+                const_cast<Real*>(tlay.ptr()),
+                const_cast<Real*>(tlev.ptr()),
+                const_cast<Real*>(tsfc.ptr()),
                 &sfc_lay,
-                const_cast<TF*>(fmajor.ptr()),
+                const_cast<Real*>(fmajor.ptr()),
                 const_cast<int*>(jeta.ptr()),
                 const_cast<Bool*>(tropo.ptr()),
                 const_cast<int*>(jtemp.ptr()),
                 const_cast<int*>(jpress.ptr()),
-                const_cast<int*>(gpoint_bands.ptr()), const_cast<int*>(band_lims_gpt.ptr()), const_cast<TF*>(pfracin.ptr()), &temp_ref_min,
-                &totplnk_delta, const_cast<TF*>(totplnk.ptr()), const_cast<int*>(gpoint_flavor.ptr()),
+                const_cast<int*>(gpoint_bands.ptr()), const_cast<int*>(band_lims_gpt.ptr()), const_cast<Real*>(pfracin.ptr()), &temp_ref_min,
+                &totplnk_delta, const_cast<Real*>(totplnk.ptr()), const_cast<int*>(gpoint_flavor.ptr()),
                 sfc_src.ptr(), lay_src.ptr(), lev_src_inc.ptr(), lev_src_dec.ptr(),
                 sfc_src_jac.ptr());
     }
 }
 
-template<typename TF>
-void Gas_optics_rrtmgp<TF>::compute_gas_taus(
+void Gas_optics_rrtmgp::compute_gas_taus(
         const int ncol, const int nlay, const int ngpt, const int nband,
-        const Array<TF,2>& play,
-        const Array<TF,2>& plev,
-        const Array<TF,2>& tlay,
+        const Array<Real,2>& play,
+        const Array<Real,2>& plev,
+        const Array<Real,2>& tlay,
         const Gas_concs& gas_desc,
         std::unique_ptr<Optical_props_arry>& optical_props,
         Array<int,2>& jtemp, Array<int,2>& jpress,
         Array<int,4>& jeta,
         Array<Bool,2>& tropo,
-        Array<TF,6>& fmajor,
-        const Array<TF,2>& col_dry) const
+        Array<Real,6>& fmajor,
+        const Array<Real,2>& col_dry) const
 {
-    Array<TF,3> tau({ngpt, nlay, ncol});
-    Array<TF,3> tau_rayleigh({ngpt, nlay, ncol});
-    Array<TF,3> vmr({ncol, nlay, this->get_ngas()});
-    Array<TF,3> col_gas({ncol, nlay, this->get_ngas()+1});
+    Array<Real,3> tau({ngpt, nlay, ncol});
+    Array<Real,3> tau_rayleigh({ngpt, nlay, ncol});
+    Array<Real,3> vmr({ncol, nlay, this->get_ngas()});
+    Array<Real,3> col_gas({ncol, nlay, this->get_ngas()+1});
     col_gas.set_offsets({0, 0, -1});
-    Array<TF,4> col_mix({2, this->get_nflav(), ncol, nlay});
-    Array<TF,5> fminor({2, 2, this->get_nflav(), ncol, nlay});
+    Array<Real,4> col_mix({2, this->get_nflav(), ncol, nlay});
+    Array<Real,5> fminor({2, 2, this->get_nflav(), ncol, nlay});
 
     // CvH add all the checking...
     const int ngas = this->get_ngas();
@@ -1107,12 +1092,12 @@ void Gas_optics_rrtmgp<TF>::compute_gas_taus(
 
     for (int igas=1; igas<=ngas; ++igas)
     {
-        const Array<TF,2>& vmr_2d = gas_desc.get_vmr(this->gas_names({igas}));
+        const Array<Real,2>& vmr_2d = gas_desc.get_vmr(this->gas_names({igas}));
 
         // Fill array with constant value.
         if (vmr_2d.dim(1) == 1 && vmr_2d.dim(2) == 1)
         {
-            const TF vmr_c = vmr_2d({1, 1});
+            const Real vmr_c = vmr_2d({1, 1});
             for (int ilay=1; ilay<=nlay; ++ilay)
                 for (int icol=1; icol<=ncol; ++icol)
                     vmr({icol, ilay, igas}) = vmr_c;
@@ -1122,7 +1107,7 @@ void Gas_optics_rrtmgp<TF>::compute_gas_taus(
         {
             for (int ilay=1; ilay<=nlay; ++ilay)
             {
-                const TF vmr_lay = vmr_2d({1, ilay});
+                const Real vmr_lay = vmr_2d({1, ilay});
                 for (int icol=1; icol<=ncol; ++icol)
                     vmr({icol, ilay, igas}) = vmr_lay;
             }
@@ -1227,10 +1212,9 @@ void Gas_optics_rrtmgp<TF>::compute_gas_taus(
     combine_and_reorder(tau, tau_rayleigh, has_rayleigh, optical_props);
 }
 
-template<typename TF>
-void Gas_optics_rrtmgp<TF>::combine_and_reorder(
-        const Array<TF,3>& tau,
-        const Array<TF,3>& tau_rayleigh,
+void Gas_optics_rrtmgp::combine_and_reorder(
+        const Array<Real,3>& tau,
+        const Array<Real,3>& tau_rayleigh,
         const bool has_rayleigh,
         std::unique_ptr<Optical_props_arry>& optical_props) const
 {
@@ -1260,16 +1244,15 @@ void Gas_optics_rrtmgp<TF>::combine_and_reorder(
     }
 }
 
-template<typename TF>
-void Gas_optics_rrtmgp<TF>::source(
+void Gas_optics_rrtmgp::source(
         const int ncol, const int nlay, const int nbnd, const int ngpt,
-        const Array<TF,2>& play, const Array<TF,2>& plev,
-        const Array<TF,2>& tlay, const Array<TF,1>& tsfc,
+        const Array<Real,2>& play, const Array<Real,2>& plev,
+        const Array<Real,2>& tlay, const Array<Real,1>& tsfc,
         const Array<int,2>& jtemp, const Array<int,2>& jpress,
         const Array<int,4>& jeta, const Array<Bool,2>& tropo,
-        const Array<TF,6>& fmajor,
+        const Array<Real,6>& fmajor,
         Source_func_lw& sources,
-        const Array<TF,2>& tlev) const
+        const Array<Real,2>& tlev) const
 {
     // CvH Assume tlev is available.
     // Compute internal (Planck) source functions at layers and levels,
@@ -1282,11 +1265,11 @@ void Gas_optics_rrtmgp<TF>::source(
     auto gpoint_bands = this->get_gpoint_bands();
     auto band_lims_gpoint = this->get_band_lims_gpoint();
 
-    Array<TF,3> lay_source_t({ngpt, nlay, ncol});
-    Array<TF,3> lev_source_inc_t({ngpt, nlay, ncol});
-    Array<TF,3> lev_source_dec_t({ngpt, nlay, ncol});
-    Array<TF,2> sfc_source_t({ngpt, ncol});
-    Array<TF,2> sfc_source_jac({ngpt, ncol});
+    Array<Real,3> lay_source_t({ngpt, nlay, ncol});
+    Array<Real,3> lev_source_inc_t({ngpt, nlay, ncol});
+    Array<Real,3> lev_source_dec_t({ngpt, nlay, ncol});
+    Array<Real,2> sfc_source_t({ngpt, ncol});
+    Array<Real,2> sfc_source_jac({ngpt, ncol});
 
     int sfc_lay = play({1, 1}) > play({1, nlay}) ? 1 : nlay;
     rrtmgp_kernel_launcher::compute_Planck_source(
@@ -1315,20 +1298,13 @@ void Gas_optics_rrtmgp<TF>::source(
     // reorder123x321_test(sources.get_lev_source_dec().ptr(), lev_source_dec_t.ptr(), ngpt, nlay, ncol);
 }
 
-template<typename TF>
-TF Gas_optics_rrtmgp<TF>::get_tsi() const
+Real Gas_optics_rrtmgp::get_tsi() const
 {
     const int n_gpt = this->get_ngpt();
 
-    TF tsi = 0.;
+    Real tsi = 0.;
     for (int igpt=1; igpt<=n_gpt; ++igpt)
         tsi += this->solar_source({igpt});
 
     return tsi;
 }
-
-#ifdef FLOAT_SINGLE_RRTMGP
-template class Gas_optics_rrtmgp<float>;
-#else
-template class Gas_optics_rrtmgp<double>;
-#endif

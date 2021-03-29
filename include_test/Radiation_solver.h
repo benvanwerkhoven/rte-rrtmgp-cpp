@@ -61,7 +61,7 @@ class Radiation_solver_longwave
         { return this->kdist->get_band_lims_wavenumber(); }
 
     private:
-        std::unique_ptr<Gas_optics_rrtmgp<TF>> kdist;
+        std::unique_ptr<Gas_optics_rrtmgp> kdist;
         std::unique_ptr<Cloud_optics> cloud_optics;
 };
 
@@ -106,7 +106,7 @@ class Radiation_solver_shortwave
         { return this->kdist->get_band_lims_wavenumber(); }
 
     private:
-        std::unique_ptr<Gas_optics<TF>> kdist;
+        std::unique_ptr<Gas_optics> kdist;
         std::unique_ptr<Cloud_optics> cloud_optics;
 };
 #endif

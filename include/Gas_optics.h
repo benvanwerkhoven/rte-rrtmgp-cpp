@@ -34,12 +34,11 @@
 class Gas_concs;
 class Source_func_lw;
 
-template<typename TF>
 class Gas_optics : public Optical_props
 {
     public:
         Gas_optics(
-                const Array<TF,2>& band_lims_wvn,
+                const Array<Real,2>& band_lims_wvn,
                 const Array<int,2>& band_lims_gpt) :
             Optical_props(band_lims_wvn, band_lims_gpt)
         {}
@@ -49,34 +48,34 @@ class Gas_optics : public Optical_props
         virtual bool source_is_internal() const = 0;
         virtual bool source_is_external() const = 0;
 
-        virtual TF get_press_ref_min() const = 0;
-        virtual TF get_press_ref_max() const = 0;
+        virtual Real get_press_ref_min() const = 0;
+        virtual Real get_press_ref_max() const = 0;
 
-        virtual TF get_temp_min() const = 0;
-        virtual TF get_temp_max() const = 0;
+        virtual Real get_temp_min() const = 0;
+        virtual Real get_temp_max() const = 0;
 
         // Longwave variant.
         virtual void gas_optics(
-                const Array<TF,2>& play,
-                const Array<TF,2>& plev,
-                const Array<TF,2>& tlay,
-                const Array<TF,1>& tsfc,
+                const Array<Real,2>& play,
+                const Array<Real,2>& plev,
+                const Array<Real,2>& tlay,
+                const Array<Real,1>& tsfc,
                 const Gas_concs& gas_desc,
                 std::unique_ptr<Optical_props_arry>& optical_props,
                 Source_func_lw& sources,
-                const Array<TF,2>& col_dry,
-                const Array<TF,2>& tlev) const = 0;
+                const Array<Real,2>& col_dry,
+                const Array<Real,2>& tlev) const = 0;
 
         // Shortwave variant.
         virtual void gas_optics(
-                const Array<TF,2>& play,
-                const Array<TF,2>& plev,
-                const Array<TF,2>& tlay,
+                const Array<Real,2>& play,
+                const Array<Real,2>& plev,
+                const Array<Real,2>& tlay,
                 const Gas_concs& gas_desc,
                 std::unique_ptr<Optical_props_arry>& optical_props,
-                Array<TF,2>& toa_src,
-                const Array<TF,2>& col_dry) const = 0;
+                Array<Real,2>& toa_src,
+                const Array<Real,2>& col_dry) const = 0;
 
-        virtual TF get_tsi() const = 0;
+        virtual Real get_tsi() const = 0;
 };
 #endif

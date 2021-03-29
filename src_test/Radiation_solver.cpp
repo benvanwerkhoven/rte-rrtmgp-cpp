@@ -67,8 +67,7 @@ namespace
         return var;
     }
 
-    template<typename TF>
-    Gas_optics_rrtmgp<TF> load_and_init_gas_optics(
+    Gas_optics_rrtmgp load_and_init_gas_optics(
             const Gas_concs& gas_concs,
             const std::string& coef_file)
     {
@@ -104,20 +103,20 @@ namespace
         Array<int,3> key_species(
                 coef_nc.get_variable<int>("key_species", {n_bnds, n_layers, 2}),
                 {2, n_layers, n_bnds});
-        Array<TF,2> band_lims(coef_nc.get_variable<TF>("bnd_limits_wavenumber", {n_bnds, 2}), {2, n_bnds});
+        Array<Real,2> band_lims(coef_nc.get_variable<Real>("bnd_limits_wavenumber", {n_bnds, 2}), {2, n_bnds});
         Array<int,2> band2gpt(coef_nc.get_variable<int>("bnd_limits_gpt", {n_bnds, 2}), {2, n_bnds});
-        Array<TF,1> press_ref(coef_nc.get_variable<TF>("press_ref", {n_press}), {n_press});
-        Array<TF,1> temp_ref(coef_nc.get_variable<TF>("temp_ref", {n_temps}), {n_temps});
+        Array<Real,1> press_ref(coef_nc.get_variable<Real>("press_ref", {n_press}), {n_press});
+        Array<Real,1> temp_ref(coef_nc.get_variable<Real>("temp_ref", {n_temps}), {n_temps});
 
-        TF temp_ref_p = coef_nc.get_variable<TF>("absorption_coefficient_ref_P");
-        TF temp_ref_t = coef_nc.get_variable<TF>("absorption_coefficient_ref_T");
-        TF press_ref_trop = coef_nc.get_variable<TF>("press_ref_trop");
+        Real temp_ref_p = coef_nc.get_variable<Real>("absorption_coefficient_ref_P");
+        Real temp_ref_t = coef_nc.get_variable<Real>("absorption_coefficient_ref_T");
+        Real press_ref_trop = coef_nc.get_variable<Real>("press_ref_trop");
 
-        Array<TF,3> kminor_lower(
-                coef_nc.get_variable<TF>("kminor_lower", {n_temps, n_mixingfracs, n_contributors_lower}),
+        Array<Real,3> kminor_lower(
+                coef_nc.get_variable<Real>("kminor_lower", {n_temps, n_mixingfracs, n_contributors_lower}),
                 {n_contributors_lower, n_mixingfracs, n_temps});
-        Array<TF,3> kminor_upper(
-                coef_nc.get_variable<TF>("kminor_upper", {n_temps, n_mixingfracs, n_contributors_upper}),
+        Array<Real,3> kminor_upper(
+                coef_nc.get_variable<Real>("kminor_upper", {n_temps, n_mixingfracs, n_contributors_upper}),
                 {n_contributors_upper, n_mixingfracs, n_temps});
 
         Array<std::string,1> gas_minor(get_variable_string("gas_minor", {n_minorabsorbers}, coef_nc, n_char),
@@ -168,24 +167,24 @@ namespace
                 coef_nc.get_variable<int>("kminor_start_upper", {n_minor_absorber_intervals_upper}),
                 {n_minor_absorber_intervals_upper});
 
-        Array<TF,3> vmr_ref(
-                coef_nc.get_variable<TF>("vmr_ref", {n_temps, n_extabsorbers, n_layers}),
+        Array<Real,3> vmr_ref(
+                coef_nc.get_variable<Real>("vmr_ref", {n_temps, n_extabsorbers, n_layers}),
                 {n_layers, n_extabsorbers, n_temps});
 
-        Array<TF,4> kmajor(
-                coef_nc.get_variable<TF>("kmajor", {n_temps, n_press+1, n_mixingfracs, n_gpts}),
+        Array<Real,4> kmajor(
+                coef_nc.get_variable<Real>("kmajor", {n_temps, n_press+1, n_mixingfracs, n_gpts}),
                 {n_gpts, n_mixingfracs, n_press+1, n_temps});
 
         // Keep the size at zero, if it does not exist.
-        Array<TF,3> rayl_lower;
-        Array<TF,3> rayl_upper;
+        Array<Real,3> rayl_lower;
+        Array<Real,3> rayl_upper;
 
         if (coef_nc.variable_exists("rayl_lower"))
         {
             rayl_lower.set_dims({n_gpts, n_mixingfracs, n_temps});
             rayl_upper.set_dims({n_gpts, n_mixingfracs, n_temps});
-            rayl_lower = coef_nc.get_variable<TF>("rayl_lower", {n_temps, n_mixingfracs, n_gpts});
-            rayl_upper = coef_nc.get_variable<TF>("rayl_upper", {n_temps, n_mixingfracs, n_gpts});
+            rayl_lower = coef_nc.get_variable<Real>("rayl_lower", {n_temps, n_mixingfracs, n_gpts});
+            rayl_upper = coef_nc.get_variable<Real>("rayl_upper", {n_temps, n_mixingfracs, n_gpts});
         }
 
         // Is it really LW if so read these variables as well.
@@ -193,15 +192,15 @@ namespace
         {
             int n_internal_sourcetemps = coef_nc.get_dimension_size("temperature_Planck");
 
-            Array<TF,2> totplnk(
-                    coef_nc.get_variable<TF>( "totplnk", {n_bnds, n_internal_sourcetemps}),
+            Array<Real,2> totplnk(
+                    coef_nc.get_variable<Real>( "totplnk", {n_bnds, n_internal_sourcetemps}),
                     {n_internal_sourcetemps, n_bnds});
-            Array<TF,4> planck_frac(
-                    coef_nc.get_variable<TF>("plank_fraction", {n_temps, n_press+1, n_mixingfracs, n_gpts}),
+            Array<Real,4> planck_frac(
+                    coef_nc.get_variable<Real>("plank_fraction", {n_temps, n_press+1, n_mixingfracs, n_gpts}),
                     {n_gpts, n_mixingfracs, n_press+1, n_temps});
 
             // Construct the k-distribution.
-            return Gas_optics_rrtmgp<TF>(
+            return Gas_optics_rrtmgp(
                     gas_concs,
                     gas_names,
                     key_species,
@@ -237,18 +236,18 @@ namespace
         }
         else
         {
-            Array<TF,1> solar_src_quiet(
-                    coef_nc.get_variable<TF>("solar_source_quiet", {n_gpts}), {n_gpts});
-            Array<TF,1> solar_src_facular(
-                    coef_nc.get_variable<TF>("solar_source_facular", {n_gpts}), {n_gpts});
-            Array<TF,1> solar_src_sunspot(
-                    coef_nc.get_variable<TF>("solar_source_sunspot", {n_gpts}), {n_gpts});
+            Array<Real,1> solar_src_quiet(
+                    coef_nc.get_variable<Real>("solar_source_quiet", {n_gpts}), {n_gpts});
+            Array<Real,1> solar_src_facular(
+                    coef_nc.get_variable<Real>("solar_source_facular", {n_gpts}), {n_gpts});
+            Array<Real,1> solar_src_sunspot(
+                    coef_nc.get_variable<Real>("solar_source_sunspot", {n_gpts}), {n_gpts});
 
-            TF tsi = coef_nc.get_variable<TF>("tsi_default");
-            TF mg_index = coef_nc.get_variable<TF>("mg_default");
-            TF sb_index = coef_nc.get_variable<TF>("sb_default");
+            Real tsi = coef_nc.get_variable<Real>("tsi_default");
+            Real mg_index = coef_nc.get_variable<Real>("mg_default");
+            Real sb_index = coef_nc.get_variable<Real>("sb_default");
 
-            return Gas_optics_rrtmgp<TF>(
+            return Gas_optics_rrtmgp(
                     gas_concs,
                     gas_names,
                     key_species,
@@ -342,8 +341,8 @@ Radiation_solver_longwave<TF>::Radiation_solver_longwave(
         const std::string& file_name_cloud)
 {
     // Construct the gas optics classes for the solver.
-    this->kdist = std::make_unique<Gas_optics_rrtmgp<TF>>(
-            load_and_init_gas_optics<TF>(gas_concs, file_name_gas));
+    this->kdist = std::make_unique<Gas_optics_rrtmgp>(
+            load_and_init_gas_optics(gas_concs, file_name_gas));
 
     this->cloud_optics = std::make_unique<Cloud_optics>(
             load_and_init_cloud_optics(file_name_cloud));
@@ -424,7 +423,7 @@ void Radiation_solver_longwave<TF>::solve(
 
         Array<TF,2> col_dry_subset({n_col_in, n_lay});
         if (col_dry.size() == 0)
-            Gas_optics_rrtmgp<TF>::get_col_dry(col_dry_subset, gas_concs_subset.get_vmr("h2o"), p_lev_subset);
+            Gas_optics_rrtmgp::get_col_dry(col_dry_subset, gas_concs_subset.get_vmr("h2o"), p_lev_subset);
         else
             col_dry_subset = std::move(col_dry.subset({{ {col_s_in, col_e_in}, {1, n_lay} }}));
 
@@ -568,8 +567,8 @@ Radiation_solver_shortwave<TF>::Radiation_solver_shortwave(
         const std::string& file_name_cloud)
 {
     // Construct the gas optics classes for the solver.
-    this->kdist = std::make_unique<Gas_optics_rrtmgp<TF>>(
-            load_and_init_gas_optics<TF>(gas_concs, file_name_gas));
+    this->kdist = std::make_unique<Gas_optics_rrtmgp>(
+            load_and_init_gas_optics(gas_concs, file_name_gas));
 
     this->cloud_optics = std::make_unique<Cloud_optics>(
             load_and_init_cloud_optics(file_name_cloud));
@@ -642,7 +641,7 @@ void Radiation_solver_shortwave<TF>::solve(
 
         Array<TF,2> col_dry_subset({n_col_in, n_lay});
         if (col_dry.size() == 0)
-            Gas_optics_rrtmgp<TF>::get_col_dry(col_dry_subset, gas_concs_subset.get_vmr("h2o"), p_lev_subset);
+            Gas_optics_rrtmgp::get_col_dry(col_dry_subset, gas_concs_subset.get_vmr("h2o"), p_lev_subset);
         else
             col_dry_subset = std::move(col_dry.subset({{ {col_s_in, col_e_in}, {1, n_lay} }}));
 
