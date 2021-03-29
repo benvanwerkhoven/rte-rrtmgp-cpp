@@ -1,7 +1,7 @@
 FILE(GLOB sourcefiles "../src_cuda/*_kernels.cu" )
 include_directories("../include" SYSTEM ${INCLUDE_DIRS})
 
-if(FLOAT_TYPE STREQUAL "single")
+if(USESP)
     message(STATUS "Compiling RRTMGP CUDA kernels in single precision")
     cuda_add_library(rte_rrtmgp_kernels_cuda STATIC ${sourcefiles})
     target_compile_definitions(rte_rrtmgp_kernels_cuda PRIVATE REAL_TYPE=sp)

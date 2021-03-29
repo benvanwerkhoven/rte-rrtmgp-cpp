@@ -1,9 +1,9 @@
 #include <chrono>
+#include <iomanip>
 
 #include "rte_kernel_launcher_cuda.h"
 #include "tools_gpu.h"
 #include "Array.h"
-#include <iomanip>
 
 namespace
 {
