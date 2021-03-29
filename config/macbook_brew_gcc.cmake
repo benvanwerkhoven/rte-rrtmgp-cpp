@@ -26,5 +26,5 @@ set(SZIP_LIB           "/usr/local/lib/libsz.dylib")
 set(LIBS ${NETCDF_LIB_CPP} ${NETCDF_LIB_C} ${HDF5_LIB_2} ${HDF5_LIB_1} ${SZIP_LIB} m z curl)
 set(INCLUDE_DIRS ${FFTW_INCLUDE_DIR} ${NETCDF_INCLUDE_DIR})
 
-add_definitions(-DRESTRICTKEYWORD=__restrict__)
-add_definitions(-DUSE_CBOOL)
+add_compile_definitions(RESTRICTKEYWORD=__restrict__)
+add_compile_definitions(RTE_RRTMGP_USE_CBOOL)

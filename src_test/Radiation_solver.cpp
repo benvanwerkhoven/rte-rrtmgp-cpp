@@ -25,6 +25,7 @@
 #include "Status.h"
 #include "Netcdf_interface.h"
 
+#include "Types.h"
 #include "Array.h"
 #include "Gas_concs.h"
 #include "Gas_optics_rrtmgp.h"
@@ -139,18 +140,18 @@ namespace
                 coef_nc.get_variable<int>("minor_limits_gpt_upper", {n_minor_absorber_intervals_upper, n_pairs}),
                 {n_pairs, n_minor_absorber_intervals_upper});
 
-        Array<BOOL_TYPE,1> minor_scales_with_density_lower(
-                coef_nc.get_variable<BOOL_TYPE>("minor_scales_with_density_lower", {n_minor_absorber_intervals_lower}),
+        Array<Bool,1> minor_scales_with_density_lower(
+                coef_nc.get_variable<Bool>("minor_scales_with_density_lower", {n_minor_absorber_intervals_lower}),
                 {n_minor_absorber_intervals_lower});
-        Array<BOOL_TYPE,1> minor_scales_with_density_upper(
-                coef_nc.get_variable<BOOL_TYPE>("minor_scales_with_density_upper", {n_minor_absorber_intervals_upper}),
+        Array<Bool,1> minor_scales_with_density_upper(
+                coef_nc.get_variable<Bool>("minor_scales_with_density_upper", {n_minor_absorber_intervals_upper}),
                 {n_minor_absorber_intervals_upper});
 
-        Array<BOOL_TYPE,1> scale_by_complement_lower(
-                coef_nc.get_variable<BOOL_TYPE>("scale_by_complement_lower", {n_minor_absorber_intervals_lower}),
+        Array<Bool,1> scale_by_complement_lower(
+                coef_nc.get_variable<Bool>("scale_by_complement_lower", {n_minor_absorber_intervals_lower}),
                 {n_minor_absorber_intervals_lower});
-        Array<BOOL_TYPE,1> scale_by_complement_upper(
-                coef_nc.get_variable<BOOL_TYPE>("scale_by_complement_upper", {n_minor_absorber_intervals_upper}),
+        Array<Bool,1> scale_by_complement_upper(
+                coef_nc.get_variable<Bool>("scale_by_complement_upper", {n_minor_absorber_intervals_upper}),
                 {n_minor_absorber_intervals_upper});
 
         Array<std::string,1> scaling_gas_lower(
@@ -373,7 +374,7 @@ void Radiation_solver_longwave<TF>::solve(
     const int n_gpt = this->kdist->get_ngpt();
     const int n_bnd = this->kdist->get_nband();
 
-    const BOOL_TYPE top_at_1 = p_lay({1, 1}) < p_lay({1, n_lay});
+    const Bool top_at_1 = p_lay({1, 1}) < p_lay({1, n_lay});
 
     constexpr int n_col_block = 16;
 
@@ -602,7 +603,7 @@ void Radiation_solver_shortwave<TF>::solve(
     const int n_gpt = this->kdist->get_ngpt();
     const int n_bnd = this->kdist->get_nband();
 
-    const BOOL_TYPE top_at_1 = p_lay({1, 1}) < p_lay({1, n_lay});
+    const Bool top_at_1 = p_lay({1, 1}) < p_lay({1, n_lay});
 
     constexpr int n_col_block = 16;
 

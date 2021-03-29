@@ -26,7 +26,7 @@
 #define RTE_LW_H
 
 #include <memory>
-#include "define_bool.h"
+#include "Types.h"
 
 // Forward declarations.
 template<typename, int> class Array;
@@ -40,7 +40,7 @@ class Rte_lw
     public:
         static void rte_lw(
                 const std::unique_ptr<Optical_props_arry<TF>>& optical_props,
-                const BOOL_TYPE top_at_1,
+                const Bool top_at_1,
                 const Source_func_lw<TF>& sources,
                 const Array<TF,2>& sfc_emis,
                 const Array<TF,2>& inc_flux,

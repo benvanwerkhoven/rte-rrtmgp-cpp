@@ -33,7 +33,7 @@
 #include "Source_functions.h"
 
 #include "rrtmgp_kernels.h"
-#define restrict __restrict__
+// #define restrict __restrict__
 
 namespace
 {
@@ -56,23 +56,23 @@ namespace
                 const Array<TF,3>& kminor_atm,
                 const Array<std::string,1>& minor_gases_atm,
                 const Array<int,2>& minor_limits_gpt_atm,
-                const Array<BOOL_TYPE,1>& minor_scales_with_density_atm,
+                const Array<Bool,1>& minor_scales_with_density_atm,
                 const Array<std::string,1>& scaling_gas_atm,
-                const Array<BOOL_TYPE,1>& scale_by_complement_atm,
+                const Array<Bool,1>& scale_by_complement_atm,
                 const Array<int,1>& kminor_start_atm,
 
                 Array<TF,3>& kminor_atm_red,
                 Array<std::string,1>& minor_gases_atm_red,
                 Array<int,2>& minor_limits_gpt_atm_red,
-                Array<BOOL_TYPE,1>& minor_scales_with_density_atm_red,
+                Array<Bool,1>& minor_scales_with_density_atm_red,
                 Array<std::string,1>& scaling_gas_atm_red,
-                Array<BOOL_TYPE,1>& scale_by_complement_atm_red,
+                Array<Bool,1>& scale_by_complement_atm_red,
                 Array<int,1>& kminor_start_atm_red)
     {
         int nm = minor_gases_atm.dim(1);
         int tot_g = 0;
 
-        Array<BOOL_TYPE,1> gas_is_present({nm});
+        Array<Bool,1> gas_is_present({nm});
 
         for (int i=1; i<=nm; ++i)
         {
@@ -188,7 +188,7 @@ namespace
             const Array<std::string,1>& gas_names_red,
             const Array<int,3>& key_species,
             Array<int,3>& key_species_red,
-            Array<BOOL_TYPE,1>& key_species_present_init)
+            Array<Bool,1>& key_species_present_init)
     {
         const int np = key_species.dim(1);
         const int na = key_species.dim(2);
@@ -219,7 +219,7 @@ namespace
 
     void check_key_species_present_init(
             const Array<std::string,1>& gas_names,
-            const Array<BOOL_TYPE,1>& key_species_present_init
+            const Array<Bool,1>& key_species_present_init
             )
     {
         for (int i=1; i<=key_species_present_init.dim(1); ++i)
@@ -399,12 +399,12 @@ Gas_optics_rrtmgp<TF>::Gas_optics_rrtmgp(
         const Array<std::string,1>& minor_gases_upper,
         const Array<int,2>& minor_limits_gpt_lower,
         const Array<int,2>& minor_limits_gpt_upper,
-        const Array<BOOL_TYPE,1>& minor_scales_with_density_lower,
-        const Array<BOOL_TYPE,1>& minor_scales_with_density_upper,
+        const Array<Bool,1>& minor_scales_with_density_lower,
+        const Array<Bool,1>& minor_scales_with_density_upper,
         const Array<std::string,1>& scaling_gas_lower,
         const Array<std::string,1>& scaling_gas_upper,
-        const Array<BOOL_TYPE,1>& scale_by_complement_lower,
-        const Array<BOOL_TYPE,1>& scale_by_complement_upper,
+        const Array<Bool,1>& scale_by_complement_lower,
+        const Array<Bool,1>& scale_by_complement_upper,
         const Array<int,1>& kminor_start_lower,
         const Array<int,1>& kminor_start_upper,
         const Array<TF,2>& totplnk,
@@ -467,12 +467,12 @@ Gas_optics_rrtmgp<TF>::Gas_optics_rrtmgp(
         const Array<std::string,1>& minor_gases_upper,
         const Array<int,2>& minor_limits_gpt_lower,
         const Array<int,2>& minor_limits_gpt_upper,
-        const Array<BOOL_TYPE,1>& minor_scales_with_density_lower,
-        const Array<BOOL_TYPE,1>& minor_scales_with_density_upper,
+        const Array<Bool,1>& minor_scales_with_density_lower,
+        const Array<Bool,1>& minor_scales_with_density_upper,
         const Array<std::string,1>& scaling_gas_lower,
         const Array<std::string,1>& scaling_gas_upper,
-        const Array<BOOL_TYPE,1>& scale_by_complement_lower,
-        const Array<BOOL_TYPE,1>& scale_by_complement_upper,
+        const Array<Bool,1>& scale_by_complement_lower,
+        const Array<Bool,1>& scale_by_complement_upper,
         const Array<int,1>& kminor_start_lower,
         const Array<int,1>& kminor_start_upper,
         const Array<TF,1>& solar_source_quiet,
@@ -540,12 +540,12 @@ void Gas_optics_rrtmgp<TF>::init_abs_coeffs(
         const Array<std::string,1>& minor_gases_upper,
         const Array<int,2>& minor_limits_gpt_lower,
         const Array<int,2>& minor_limits_gpt_upper,
-        const Array<BOOL_TYPE,1>& minor_scales_with_density_lower,
-        const Array<BOOL_TYPE,1>& minor_scales_with_density_upper,
+        const Array<Bool,1>& minor_scales_with_density_lower,
+        const Array<Bool,1>& minor_scales_with_density_upper,
         const Array<std::string,1>& scaling_gas_lower,
         const Array<std::string,1>& scaling_gas_upper,
-        const Array<BOOL_TYPE,1>& scale_by_complement_lower,
-        const Array<BOOL_TYPE,1>& scale_by_complement_upper,
+        const Array<Bool,1>& scale_by_complement_lower,
+        const Array<Bool,1>& scale_by_complement_upper,
         const Array<int,1>& kminor_start_lower,
         const Array<int,1>& kminor_start_upper,
         const Array<TF,3>& rayl_lower,
@@ -673,7 +673,7 @@ void Gas_optics_rrtmgp<TF>::init_abs_coeffs(
     // Create flavor list.
     // Reduce (remap) key_species list; checks that all key gases are present in incoming
     Array<int,3> key_species_red;
-    Array<BOOL_TYPE,1> key_species_present_init;
+    Array<Bool,1> key_species_present_init;
 
     create_key_species_reduce(
             gas_names, this->gas_names, key_species, key_species_red, key_species_present_init);
@@ -802,7 +802,7 @@ void Gas_optics_rrtmgp<TF>::gas_optics(
 
     Array<int,2> jtemp({play.dim(1), play.dim(2)});
     Array<int,2> jpress({play.dim(1), play.dim(2)});
-    Array<BOOL_TYPE,2> tropo({play.dim(1), play.dim(2)});
+    Array<Bool,2> tropo({play.dim(1), play.dim(2)});
     Array<TF,6> fmajor({2, 2, 2, this->get_nflav(), play.dim(1), play.dim(2)});
     Array<int,4> jeta({2, this->get_nflav(), play.dim(1), play.dim(2)});
 
@@ -853,7 +853,7 @@ void Gas_optics_rrtmgp<TF>::gas_optics(
 
     Array<int,2> jtemp({play.dim(1), play.dim(2)});
     Array<int,2> jpress({play.dim(1), play.dim(2)});
-    Array<BOOL_TYPE,2> tropo({play.dim(1), play.dim(2)});
+    Array<Bool,2> tropo({play.dim(1), play.dim(2)});
     Array<TF,6> fmajor({2, 2, 2, this->get_nflav(), play.dim(1), play.dim(2)});
     Array<int,4> jeta({2, this->get_nflav(), play.dim(1), play.dim(2)});
 
@@ -903,7 +903,7 @@ namespace rrtmgp_kernel_launcher
             Array<int,2>& jtemp,
             Array<TF,6>& fmajor, Array<TF,5>& fminor,
             Array<TF,4>& col_mix,
-            Array<BOOL_TYPE,2>& tropo,
+            Array<Bool,2>& tropo,
             Array<int,4>& jeta,
             Array<int,2>& jpress)
     {
@@ -943,17 +943,17 @@ namespace rrtmgp_kernel_launcher
             const Array<TF,3>& kminor_upper,
             const Array<int,2>& minor_limits_gpt_lower,
             const Array<int,2>& minor_limits_gpt_upper,
-            const Array<BOOL_TYPE,1>& minor_scales_with_density_lower,
-            const Array<BOOL_TYPE,1>& minor_scales_with_density_upper,
-            const Array<BOOL_TYPE,1>& scale_by_complement_lower,
-            const Array<BOOL_TYPE,1>& scale_by_complement_upper,
+            const Array<Bool,1>& minor_scales_with_density_lower,
+            const Array<Bool,1>& minor_scales_with_density_upper,
+            const Array<Bool,1>& scale_by_complement_lower,
+            const Array<Bool,1>& scale_by_complement_upper,
             const Array<int,1>& idx_minor_lower,
             const Array<int,1>& idx_minor_upper,
             const Array<int,1>& idx_minor_scaling_lower,
             const Array<int,1>& idx_minor_scaling_upper,
             const Array<int,1>& kminor_start_lower,
             const Array<int,1>& kminor_start_upper,
-            const Array<BOOL_TYPE,2>& tropo,
+            const Array<Bool,2>& tropo,
             const Array<TF,4>& col_mix, const Array<TF,6>& fmajor,
             const Array<TF,5>& fminor, const Array<TF,2>& play,
             const Array<TF,2>& tlay, Array<TF,3>& col_gas,
@@ -973,17 +973,17 @@ namespace rrtmgp_kernel_launcher
             const_cast<TF*>(kminor_upper.ptr()),
             const_cast<int*>(minor_limits_gpt_lower.ptr()),
             const_cast<int*>(minor_limits_gpt_upper.ptr()),
-            const_cast<BOOL_TYPE*>(minor_scales_with_density_lower.ptr()),
-            const_cast<BOOL_TYPE*>(minor_scales_with_density_upper.ptr()),
-            const_cast<BOOL_TYPE*>(scale_by_complement_lower.ptr()),
-            const_cast<BOOL_TYPE*>(scale_by_complement_upper.ptr()),
+            const_cast<Bool*>(minor_scales_with_density_lower.ptr()),
+            const_cast<Bool*>(minor_scales_with_density_upper.ptr()),
+            const_cast<Bool*>(scale_by_complement_lower.ptr()),
+            const_cast<Bool*>(scale_by_complement_upper.ptr()),
             const_cast<int*>(idx_minor_lower.ptr()),
             const_cast<int*>(idx_minor_upper.ptr()),
             const_cast<int*>(idx_minor_scaling_lower.ptr()),
             const_cast<int*>(idx_minor_scaling_upper.ptr()),
             const_cast<int*>(kminor_start_lower.ptr()),
             const_cast<int*>(kminor_start_upper.ptr()),
-            const_cast<BOOL_TYPE*>(tropo.ptr()),
+            const_cast<Bool*>(tropo.ptr()),
             const_cast<TF*>(col_mix.ptr()), const_cast<TF*>(fmajor.ptr()), const_cast<TF*>(fminor.ptr()),
             const_cast<TF*>(play.ptr()), const_cast<TF*>(tlay.ptr()), const_cast<TF*>(col_gas.ptr()),
             const_cast<int*>(jeta.ptr()), const_cast<int*>(jtemp.ptr()), const_cast<int*>(jpress.ptr()),
@@ -999,7 +999,7 @@ namespace rrtmgp_kernel_launcher
             const Array<TF,4>& krayl,
             int idx_h2o, const Array<TF,2>& col_dry, const Array<TF,3>& col_gas,
             const Array<TF,5>& fminor, const Array<int,4>& jeta,
-            const Array<BOOL_TYPE,2>& tropo, const Array<int,2>& jtemp,
+            const Array<Bool,2>& tropo, const Array<int,2>& jtemp,
             Array<TF,3>& tau_rayleigh)
     {
         rrtmgp_kernels::compute_tau_rayleigh(
@@ -1011,7 +1011,7 @@ namespace rrtmgp_kernel_launcher
                 &idx_h2o,
                 const_cast<TF*>(col_dry.ptr()), const_cast<TF*>(col_gas.ptr()),
                 const_cast<TF*>(fminor.ptr()), const_cast<int*>(jeta.ptr()),
-                const_cast<BOOL_TYPE*>(tropo.ptr()), const_cast<int*>(jtemp.ptr()),
+                const_cast<Bool*>(tropo.ptr()), const_cast<int*>(jtemp.ptr()),
                 tau_rayleigh.ptr());
     }
 
@@ -1046,7 +1046,7 @@ namespace rrtmgp_kernel_launcher
             int ncol, int nlay, int nbnd, int ngpt,
             int nflav, int neta, int npres, int ntemp, int nPlanckTemp,
             const Array<TF,2>& tlay, const Array<TF,2>& tlev, const Array<TF,1>& tsfc, int sfc_lay,
-            const Array<TF,6>& fmajor, const Array<int,4>& jeta, const Array<BOOL_TYPE,2>& tropo, const Array<int,2>& jtemp, const Array<int,2>& jpress,
+            const Array<TF,6>& fmajor, const Array<int,4>& jeta, const Array<Bool,2>& tropo, const Array<int,2>& jtemp, const Array<int,2>& jpress,
             const Array<int,1>& gpoint_bands, const Array<int,2>& band_lims_gpt, const Array<TF,4>& pfracin, TF temp_ref_min,
             TF totplnk_delta, const Array<TF,2>& totplnk, const Array<int,2>& gpoint_flavor,
             Array<TF,2>& sfc_src, Array<TF,3>& lay_src, Array<TF,3>& lev_src_inc, Array<TF,3>& lev_src_dec,
@@ -1061,7 +1061,7 @@ namespace rrtmgp_kernel_launcher
                 &sfc_lay,
                 const_cast<TF*>(fmajor.ptr()),
                 const_cast<int*>(jeta.ptr()),
-                const_cast<BOOL_TYPE*>(tropo.ptr()),
+                const_cast<Bool*>(tropo.ptr()),
                 const_cast<int*>(jtemp.ptr()),
                 const_cast<int*>(jpress.ptr()),
                 const_cast<int*>(gpoint_bands.ptr()), const_cast<int*>(band_lims_gpt.ptr()), const_cast<TF*>(pfracin.ptr()), &temp_ref_min,
@@ -1081,7 +1081,7 @@ void Gas_optics_rrtmgp<TF>::compute_gas_taus(
         std::unique_ptr<Optical_props_arry<TF>>& optical_props,
         Array<int,2>& jtemp, Array<int,2>& jpress,
         Array<int,4>& jeta,
-        Array<BOOL_TYPE,2>& tropo,
+        Array<Bool,2>& tropo,
         Array<TF,6>& fmajor,
         const Array<TF,2>& col_dry) const
 {
@@ -1266,7 +1266,7 @@ void Gas_optics_rrtmgp<TF>::source(
         const Array<TF,2>& play, const Array<TF,2>& plev,
         const Array<TF,2>& tlay, const Array<TF,1>& tsfc,
         const Array<int,2>& jtemp, const Array<int,2>& jpress,
-        const Array<int,4>& jeta, const Array<BOOL_TYPE,2>& tropo,
+        const Array<int,4>& jeta, const Array<Bool,2>& tropo,
         const Array<TF,6>& fmajor,
         Source_func_lw<TF>& sources,
         const Array<TF,2>& tlev) const

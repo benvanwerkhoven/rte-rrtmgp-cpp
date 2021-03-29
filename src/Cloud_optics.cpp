@@ -69,7 +69,7 @@ Cloud_optics<TF>::Cloud_optics(
 
 template<typename TF>
 void compute_all_from_table(
-        const int ncol, const int nlay, const int nbnd, const Array<BOOL_TYPE,2>& mask,
+        const int ncol, const int nlay, const int nbnd, const Array<Bool,2>& mask,
         const Array<TF,2>& cwp, const Array<TF,2>& re,
         const int nsteps, const TF step_size, const TF offset,
         const Array<TF,2>& tau_table, const Array<TF,2>& ssa_table, const Array<TF,2>& asy_table,
@@ -121,11 +121,11 @@ void Cloud_optics<TF>::cloud_optics(
 
     // Set the mask.
     constexpr TF mask_min_value = TF(0.);
-    Array<BOOL_TYPE,2> liqmsk({ncol, nlay});
+    Array<Bool,2> liqmsk({ncol, nlay});
     for (int i=0; i<liqmsk.size(); ++i)
         liqmsk.v()[i] = clwp.v()[i] > mask_min_value;
 
-    Array<BOOL_TYPE,2> icemsk({ncol, nlay});
+    Array<Bool,2> icemsk({ncol, nlay});
     for (int i=0; i<icemsk.size(); ++i)
         icemsk.v()[i] = ciwp.v()[i] > mask_min_value;
 
@@ -186,11 +186,11 @@ void Cloud_optics<TF>::cloud_optics(
 
     // Set the mask.
     constexpr TF mask_min_value = static_cast<TF>(0.);
-    Array<BOOL_TYPE,2> liqmsk({ncol, nlay});
+    Array<Bool,2> liqmsk({ncol, nlay});
     for (int i=0; i<liqmsk.size(); ++i)
         liqmsk.v()[i] = clwp.v()[i] > mask_min_value;
 
-    Array<BOOL_TYPE,2> icemsk({ncol, nlay});
+    Array<Bool,2> icemsk({ncol, nlay});
     for (int i=0; i<icemsk.size(); ++i)
         icemsk.v()[i] = ciwp.v()[i] > mask_min_value;
 

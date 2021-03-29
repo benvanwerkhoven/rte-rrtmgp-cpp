@@ -26,8 +26,10 @@
 #define OPTICAL_PROPS_H
 
 #include <memory>
+
+#include "Types.h"
 #include "Array.h"
-#include "define_bool.h"
+
 
 template<typename TF>
 class Optical_props

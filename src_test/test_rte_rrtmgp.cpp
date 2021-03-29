@@ -20,17 +20,11 @@
 #include <chrono>
 #include <iomanip>
 
+#include "Types.h"
 #include "Status.h"
 #include "Netcdf_interface.h"
 #include "Array.h"
 #include "Radiation_solver.h"
-
-
-#ifdef FLOAT_SINGLE_RRTMGP
-#define FLOAT_TYPE float
-#else
-#define FLOAT_TYPE double
-#endif
 
 
 template<typename TF>
@@ -550,7 +544,7 @@ int main(int argc, char** argv)
 {
     try
     {
-        solve_radiation<FLOAT_TYPE>(argc, argv);
+        solve_radiation<Real>(argc, argv);
     }
 
     // Catch any exceptions and return 1.

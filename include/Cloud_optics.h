@@ -25,9 +25,10 @@
 #ifndef CLOUD_OPTICS_H
 #define CLOUD_OPTICS_H
 
+#include "Types.h"
 #include "Array.h"
 #include "Optical_props.h"
-#include "define_bool.h"
+
 
 // Forward declarations.
 template<typename TF> class Optical_props;
