@@ -69,7 +69,7 @@ namespace
 
     template<typename TF>
     Gas_optics_rrtmgp<TF> load_and_init_gas_optics(
-            const Gas_concs<TF>& gas_concs,
+            const Gas_concs& gas_concs,
             const std::string& coef_file)
     {
         // READ THE COEFFICIENTS FOR THE OPTICAL SOLVER.
@@ -338,7 +338,7 @@ namespace
 
 template<typename TF>
 Radiation_solver_longwave<TF>::Radiation_solver_longwave(
-        const Gas_concs<TF>& gas_concs,
+        const Gas_concs& gas_concs,
         const std::string& file_name_gas,
         const std::string& file_name_cloud)
 {
@@ -356,7 +356,7 @@ void Radiation_solver_longwave<TF>::solve(
         const bool switch_cloud_optics,
         const bool switch_output_optical,
         const bool switch_output_bnd_fluxes,
-        const Gas_concs<TF>& gas_concs,
+        const Gas_concs& gas_concs,
         const Array<TF,2>& p_lay, const Array<TF,2>& p_lev,
         const Array<TF,2>& t_lay, const Array<TF,2>& t_lev,
         const Array<TF,2>& col_dry,
@@ -419,7 +419,7 @@ void Radiation_solver_longwave<TF>::solve(
             Fluxes_broadband<TF>& bnd_fluxes)
     {
         const int n_col_in = col_e_in - col_s_in + 1;
-        Gas_concs<TF> gas_concs_subset(gas_concs, col_s_in, n_col_in);
+        Gas_concs gas_concs_subset(gas_concs, col_s_in, n_col_in);
 
         auto p_lev_subset = p_lev.subset({{ {col_s_in, col_e_in}, {1, n_lev} }});
 
@@ -564,7 +564,7 @@ void Radiation_solver_longwave<TF>::solve(
 
 template<typename TF>
 Radiation_solver_shortwave<TF>::Radiation_solver_shortwave(
-        const Gas_concs<TF>& gas_concs,
+        const Gas_concs& gas_concs,
         const std::string& file_name_gas,
         const std::string& file_name_cloud)
 {
@@ -582,7 +582,7 @@ void Radiation_solver_shortwave<TF>::solve(
         const bool switch_cloud_optics,
         const bool switch_output_optical,
         const bool switch_output_bnd_fluxes,
-        const Gas_concs<TF>& gas_concs,
+        const Gas_concs& gas_concs,
         const Array<TF,2>& p_lay, const Array<TF,2>& p_lev,
         const Array<TF,2>& t_lay, const Array<TF,2>& t_lev,
         const Array<TF,2>& col_dry,
@@ -637,7 +637,7 @@ void Radiation_solver_shortwave<TF>::solve(
             Fluxes_broadband<TF>& bnd_fluxes)
     {
         const int n_col_in = col_e_in - col_s_in + 1;
-        Gas_concs<TF> gas_concs_subset(gas_concs, col_s_in, n_col_in);
+        Gas_concs gas_concs_subset(gas_concs, col_s_in, n_col_in);
 
         auto p_lev_subset = p_lev.subset({{ {col_s_in, col_e_in}, {1, n_lev} }});
 

@@ -31,7 +31,7 @@
 #include "Optical_props.h"
 
 // Forward declarations.
-template<typename TF> class Gas_concs;
+class Gas_concs;
 template<typename TF> class Source_func_lw;
 
 template<typename TF>
@@ -61,7 +61,7 @@ class Gas_optics : public Optical_props<TF>
                 const Array<TF,2>& plev,
                 const Array<TF,2>& tlay,
                 const Array<TF,1>& tsfc,
-                const Gas_concs<TF>& gas_desc,
+                const Gas_concs& gas_desc,
                 std::unique_ptr<Optical_props_arry<TF>>& optical_props,
                 Source_func_lw<TF>& sources,
                 const Array<TF,2>& col_dry,
@@ -72,7 +72,7 @@ class Gas_optics : public Optical_props<TF>
                 const Array<TF,2>& play,
                 const Array<TF,2>& plev,
                 const Array<TF,2>& tlay,
-                const Gas_concs<TF>& gas_desc,
+                const Gas_concs& gas_desc,
                 std::unique_ptr<Optical_props_arry<TF>>& optical_props,
                 Array<TF,2>& toa_src,
                 const Array<TF,2>& col_dry) const = 0;

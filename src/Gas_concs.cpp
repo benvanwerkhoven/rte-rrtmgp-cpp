@@ -25,8 +25,7 @@
 #include "Gas_concs.h"
 #include "Array.h"
 
-template<typename TF>
-Gas_concs<TF>::Gas_concs(const Gas_concs& gas_concs_ref, const int start, const int size)
+Gas_concs::Gas_concs(const Gas_concs& gas_concs_ref, const int start, const int size)
 {
     const int end = start + size - 1;
     for (auto& g : gas_concs_ref.gas_concs_map)
@@ -35,24 +34,23 @@ Gas_concs<TF>::Gas_concs(const Gas_concs& gas_concs_ref, const int start, const 
             this->gas_concs_map.emplace(g.first, g.second);
         else
         {
-            Array<TF,2> gas_conc_subset = g.second.subset({{ {start, end}, {1, g.second.dim(2)} }});
+            Array<Real,2> gas_conc_subset = g.second.subset({{ {start, end}, {1, g.second.dim(2)} }});
             this->gas_concs_map.emplace(g.first, gas_conc_subset);
         }
     }
 }
 
 // Insert new gas into the map or update the value.
-template<typename TF>
-void Gas_concs<TF>::set_vmr(const std::string& name, const TF data)
+void Gas_concs::set_vmr(const std::string& name, const Real data)
 {
     // Check the data.
-    if ( (data < TF(0.)) || (data > TF(1.)) )
+    if ( (data < Real(0.)) || (data > Real(1.)) )
     {
         std::string error("Gas concentration " + name + " is out of range");
         throw std::range_error(error);
     }
 
-    Array<TF,2> data_2d({1, 1});
+    Array<Real,2> data_2d({1, 1});
     data_2d({1, 1}) = data;
 
     if (this->exists(name))
@@ -62,17 +60,16 @@ void Gas_concs<TF>::set_vmr(const std::string& name, const TF data)
 }
 
 // Insert new gas into the map or update the value.
-template<typename TF>
-void Gas_concs<TF>::set_vmr(const std::string& name, const Array<TF,1>& data)
+void Gas_concs::set_vmr(const std::string& name, const Array<Real,1>& data)
 {
     // Check the data.
-    if (any_vals_outside(data, TF(0.), TF(1.)))
+    if (any_vals_outside(data, Real(0.), Real(1.)))
     {
         std::string error("Gas concentration " + name + " is out of range");
         throw std::range_error(error);
     }
 
-    Array<TF,2> data_2d(data.v(), {1, data.dim(1)});
+    Array<Real,2> data_2d(data.v(), {1, data.dim(1)});
 
     if (this->exists(name))
         gas_concs_map.at(name) = data_2d;
@@ -81,11 +78,10 @@ void Gas_concs<TF>::set_vmr(const std::string& name, const Array<TF,1>& data)
 }
 
 // Insert new gas into the map or update the value.
-template<typename TF>
-void Gas_concs<TF>::set_vmr(const std::string& name, const Array<TF,2>& data_2d)
+void Gas_concs::set_vmr(const std::string& name, const Array<Real,2>& data_2d)
 {
     // Check the data.
-    if (any_vals_outside(data_2d, TF(0.), TF(1.)))
+    if (any_vals_outside(data_2d, Real(0.), Real(1.)))
     {
         std::string error("Gas concentration " + name + " is out of range");
         throw std::range_error(error);
@@ -98,21 +94,13 @@ void Gas_concs<TF>::set_vmr(const std::string& name, const Array<TF,2>& data_2d)
 }
 
 // Get gas from map.
-template<typename TF>
-const Array<TF,2>& Gas_concs<TF>::get_vmr(const std::string& name) const
+const Array<Real,2>& Gas_concs::get_vmr(const std::string& name) const
 {
     return this->gas_concs_map.at(name);
 }
 
 // Check if gas exists in map.
-template<typename TF>
-Bool Gas_concs<TF>::exists(const std::string& name) const
+Bool Gas_concs::exists(const std::string& name) const
 { 
     return gas_concs_map.count(name) != 0;
 }
-
-#ifdef FLOAT_SINGLE_RRTMGP
-template class Gas_concs<float>;
-#else
-template class Gas_concs<double>;
-#endif

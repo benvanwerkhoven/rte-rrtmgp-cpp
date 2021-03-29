@@ -30,7 +30,7 @@ class Radiation_solver_longwave
 {
     public:
         Radiation_solver_longwave(
-                const Gas_concs<TF>& gas_concs,
+                const Gas_concs& gas_concs,
                 const std::string& file_name_gas,
                 const std::string& file_name_cloud);
 
@@ -39,7 +39,7 @@ class Radiation_solver_longwave
                 const bool switch_cloud_optics,
                 const bool switch_output_optical,
                 const bool switch_output_bnd_fluxes,
-                const Gas_concs<TF>& gas_concs,
+                const Gas_concs& gas_concs,
                 const Array<TF,2>& p_lay, const Array<TF,2>& p_lev,
                 const Array<TF,2>& t_lay, const Array<TF,2>& t_lev,
                 const Array<TF,2>& col_dry,
@@ -70,7 +70,7 @@ class Radiation_solver_shortwave
 {
     public:
         Radiation_solver_shortwave(
-                const Gas_concs<TF>& gas_concs,
+                const Gas_concs& gas_concs,
                 const std::string& file_name_gas,
                 const std::string& file_name_cloud);
 
@@ -79,7 +79,7 @@ class Radiation_solver_shortwave
                 const bool switch_cloud_optics,
                 const bool switch_output_optical,
                 const bool switch_output_bnd_fluxes,
-                const Gas_concs<TF>& gas_concs,
+                const Gas_concs& gas_concs,
                 const Array<TF,2>& p_lay, const Array<TF,2>& p_lev,
                 const Array<TF,2>& t_lay, const Array<TF,2>& t_lev,
                 const Array<TF,2>& col_dry,

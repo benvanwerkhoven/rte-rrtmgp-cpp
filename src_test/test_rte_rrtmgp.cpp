@@ -30,7 +30,7 @@
 template<typename TF>
 void read_and_set_vmr(
         const std::string& gas_name, const int n_col, const int n_lay,
-        const Netcdf_handle& input_nc, Gas_concs<TF>& gas_concs)
+        const Netcdf_handle& input_nc, Gas_concs& gas_concs)
 {
     const std::string vmr_gas_name = "vmr_" + gas_name;
 
@@ -186,28 +186,28 @@ void solve_radiation(int argc, char** argv)
     }
 
     // Create container for the gas concentrations and read gases.
-    Gas_concs<TF> gas_concs;
+    Gas_concs gas_concs;
 
-    read_and_set_vmr("h2o", n_col, n_lay, input_nc, gas_concs);
-    read_and_set_vmr("co2", n_col, n_lay, input_nc, gas_concs);
-    read_and_set_vmr("o3" , n_col, n_lay, input_nc, gas_concs);
-    read_and_set_vmr("n2o", n_col, n_lay, input_nc, gas_concs);
-    read_and_set_vmr("co" , n_col, n_lay, input_nc, gas_concs);
-    read_and_set_vmr("ch4", n_col, n_lay, input_nc, gas_concs);
-    read_and_set_vmr("o2" , n_col, n_lay, input_nc, gas_concs);
-    read_and_set_vmr("n2" , n_col, n_lay, input_nc, gas_concs);
+    read_and_set_vmr<TF>("h2o", n_col, n_lay, input_nc, gas_concs);
+    read_and_set_vmr<TF>("co2", n_col, n_lay, input_nc, gas_concs);
+    read_and_set_vmr<TF>("o3" , n_col, n_lay, input_nc, gas_concs);
+    read_and_set_vmr<TF>("n2o", n_col, n_lay, input_nc, gas_concs);
+    read_and_set_vmr<TF>("co" , n_col, n_lay, input_nc, gas_concs);
+    read_and_set_vmr<TF>("ch4", n_col, n_lay, input_nc, gas_concs);
+    read_and_set_vmr<TF>("o2" , n_col, n_lay, input_nc, gas_concs);
+    read_and_set_vmr<TF>("n2" , n_col, n_lay, input_nc, gas_concs);
 
-    read_and_set_vmr("ccl4"   , n_col, n_lay, input_nc, gas_concs);
-    read_and_set_vmr("cfc11"  , n_col, n_lay, input_nc, gas_concs);
-    read_and_set_vmr("cfc12"  , n_col, n_lay, input_nc, gas_concs);
-    read_and_set_vmr("cfc22"  , n_col, n_lay, input_nc, gas_concs);
-    read_and_set_vmr("hfc143a", n_col, n_lay, input_nc, gas_concs);
-    read_and_set_vmr("hfc125" , n_col, n_lay, input_nc, gas_concs);
-    read_and_set_vmr("hfc23"  , n_col, n_lay, input_nc, gas_concs);
-    read_and_set_vmr("hfc32"  , n_col, n_lay, input_nc, gas_concs);
-    read_and_set_vmr("hfc134a", n_col, n_lay, input_nc, gas_concs);
-    read_and_set_vmr("cf4"    , n_col, n_lay, input_nc, gas_concs);
-    read_and_set_vmr("no2"    , n_col, n_lay, input_nc, gas_concs);
+    read_and_set_vmr<TF>("ccl4"   , n_col, n_lay, input_nc, gas_concs);
+    read_and_set_vmr<TF>("cfc11"  , n_col, n_lay, input_nc, gas_concs);
+    read_and_set_vmr<TF>("cfc12"  , n_col, n_lay, input_nc, gas_concs);
+    read_and_set_vmr<TF>("cfc22"  , n_col, n_lay, input_nc, gas_concs);
+    read_and_set_vmr<TF>("hfc143a", n_col, n_lay, input_nc, gas_concs);
+    read_and_set_vmr<TF>("hfc125" , n_col, n_lay, input_nc, gas_concs);
+    read_and_set_vmr<TF>("hfc23"  , n_col, n_lay, input_nc, gas_concs);
+    read_and_set_vmr<TF>("hfc32"  , n_col, n_lay, input_nc, gas_concs);
+    read_and_set_vmr<TF>("hfc134a", n_col, n_lay, input_nc, gas_concs);
+    read_and_set_vmr<TF>("cf4"    , n_col, n_lay, input_nc, gas_concs);
+    read_and_set_vmr<TF>("no2"    , n_col, n_lay, input_nc, gas_concs);
 
     Array<TF,2> lwp;
     Array<TF,2> iwp;
