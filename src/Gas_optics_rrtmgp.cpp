@@ -774,7 +774,7 @@ void Gas_optics_rrtmgp<TF>::gas_optics(
         const Array<TF,1>& tsfc,
         const Gas_concs& gas_desc,
         std::unique_ptr<Optical_props_arry<TF>>& optical_props,
-        Source_func_lw<TF>& sources,
+        Source_func_lw& sources,
         const Array<TF,2>& col_dry,
         const Array<TF,2>& tlev) const
 {
@@ -1268,7 +1268,7 @@ void Gas_optics_rrtmgp<TF>::source(
         const Array<int,2>& jtemp, const Array<int,2>& jpress,
         const Array<int,4>& jeta, const Array<Bool,2>& tropo,
         const Array<TF,6>& fmajor,
-        Source_func_lw<TF>& sources,
+        Source_func_lw& sources,
         const Array<TF,2>& tlev) const
 {
     // CvH Assume tlev is available.

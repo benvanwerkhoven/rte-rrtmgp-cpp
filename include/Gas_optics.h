@@ -32,7 +32,7 @@
 
 // Forward declarations.
 class Gas_concs;
-template<typename TF> class Source_func_lw;
+class Source_func_lw;
 
 template<typename TF>
 class Gas_optics : public Optical_props<TF>
@@ -63,7 +63,7 @@ class Gas_optics : public Optical_props<TF>
                 const Array<TF,1>& tsfc,
                 const Gas_concs& gas_desc,
                 std::unique_ptr<Optical_props_arry<TF>>& optical_props,
-                Source_func_lw<TF>& sources,
+                Source_func_lw& sources,
                 const Array<TF,2>& col_dry,
                 const Array<TF,2>& tlev) const = 0;
 

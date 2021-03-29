@@ -36,7 +36,7 @@
 template<typename TF> class Optical_props;
 template<typename TF> class Optical_props_arry;
 class Gas_concs;
-template<typename TF> class Source_func_lw;
+class Source_func_lw;
 
 template<typename TF>
 class Gas_optics_rrtmgp : public Gas_optics<TF>
@@ -146,7 +146,7 @@ class Gas_optics_rrtmgp : public Gas_optics<TF>
                 const Array<TF,1>& tsfc,
                 const Gas_concs& gas_desc,
                 std::unique_ptr<Optical_props_arry<TF>>& optical_props,
-                Source_func_lw<TF>& sources,
+                Source_func_lw& sources,
                 const Array<TF,2>& col_dry,
                 const Array<TF,2>& tlev) const;
 
@@ -275,7 +275,7 @@ class Gas_optics_rrtmgp : public Gas_optics<TF>
                 const Array<int,2>& jtemp, const Array<int,2>& jpress,
                 const Array<int,4>& jeta, const Array<Bool,2>& tropo,
                 const Array<TF,6>& fmajor,
-                Source_func_lw<TF>& sources,
+                Source_func_lw& sources,
                 const Array<TF,2>& tlev) const;
 };
 #endif
