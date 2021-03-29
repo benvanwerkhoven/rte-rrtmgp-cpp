@@ -334,8 +334,7 @@ namespace
     }
 }
 
-template<typename TF>
-Radiation_solver_longwave<TF>::Radiation_solver_longwave(
+Radiation_solver_longwave::Radiation_solver_longwave(
         const Gas_concs& gas_concs,
         const std::string& file_name_gas,
         const std::string& file_name_cloud)
@@ -348,23 +347,22 @@ Radiation_solver_longwave<TF>::Radiation_solver_longwave(
             load_and_init_cloud_optics(file_name_cloud));
 }
 
-template<typename TF>
-void Radiation_solver_longwave<TF>::solve(
+void Radiation_solver_longwave::solve(
         const bool switch_fluxes,
         const bool switch_cloud_optics,
         const bool switch_output_optical,
         const bool switch_output_bnd_fluxes,
         const Gas_concs& gas_concs,
-        const Array<TF,2>& p_lay, const Array<TF,2>& p_lev,
-        const Array<TF,2>& t_lay, const Array<TF,2>& t_lev,
-        const Array<TF,2>& col_dry,
-        const Array<TF,1>& t_sfc, const Array<TF,2>& emis_sfc,
-        const Array<TF,2>& lwp, const Array<TF,2>& iwp,
-        const Array<TF,2>& rel, const Array<TF,2>& rei,
-        Array<TF,3>& tau, Array<TF,3>& lay_source,
-        Array<TF,3>& lev_source_inc, Array<TF,3>& lev_source_dec, Array<TF,2>& sfc_source,
-        Array<TF,2>& lw_flux_up, Array<TF,2>& lw_flux_dn, Array<TF,2>& lw_flux_net,
-        Array<TF,3>& lw_bnd_flux_up, Array<TF,3>& lw_bnd_flux_dn, Array<TF,3>& lw_bnd_flux_net) const
+        const Array<Real,2>& p_lay, const Array<Real,2>& p_lev,
+        const Array<Real,2>& t_lay, const Array<Real,2>& t_lev,
+        const Array<Real,2>& col_dry,
+        const Array<Real,1>& t_sfc, const Array<Real,2>& emis_sfc,
+        const Array<Real,2>& lwp, const Array<Real,2>& iwp,
+        const Array<Real,2>& rel, const Array<Real,2>& rei,
+        Array<Real,3>& tau, Array<Real,3>& lay_source,
+        Array<Real,3>& lev_source_inc, Array<Real,3>& lev_source_dec, Array<Real,2>& sfc_source,
+        Array<Real,2>& lw_flux_up, Array<Real,2>& lw_flux_dn, Array<Real,2>& lw_flux_net,
+        Array<Real,3>& lw_bnd_flux_up, Array<Real,3>& lw_bnd_flux_dn, Array<Real,3>& lw_bnd_flux_net) const
 {
     const int n_col = p_lay.dim(1);
     const int n_lay = p_lay.dim(2);
@@ -412,7 +410,7 @@ void Radiation_solver_longwave<TF>::solve(
             std::unique_ptr<Optical_props_arry>& optical_props_subset_in,
             std::unique_ptr<Optical_props_1scl>& cloud_optical_props_subset_in,
             Source_func_lw& sources_subset_in,
-            const Array<TF,2>& emis_sfc_subset_in,
+            const Array<Real,2>& emis_sfc_subset_in,
             Fluxes_broadband& fluxes,
             Fluxes_broadband& bnd_fluxes)
     {
@@ -421,7 +419,7 @@ void Radiation_solver_longwave<TF>::solve(
 
         auto p_lev_subset = p_lev.subset({{ {col_s_in, col_e_in}, {1, n_lev} }});
 
-        Array<TF,2> col_dry_subset({n_col_in, n_lay});
+        Array<Real,2> col_dry_subset({n_col_in, n_lay});
         if (col_dry.size() == 0)
             Gas_optics_rrtmgp::get_col_dry(col_dry_subset, gas_concs_subset.get_vmr("h2o"), p_lev_subset);
         else
@@ -476,8 +474,8 @@ void Radiation_solver_longwave<TF>::solve(
         if (!switch_fluxes)
             return;
 
-        Array<TF,3> gpt_flux_up({n_col_in, n_lev, n_gpt});
-        Array<TF,3> gpt_flux_dn({n_col_in, n_lev, n_gpt});
+        Array<Real,3> gpt_flux_up({n_col_in, n_lev, n_gpt});
+        Array<Real,3> gpt_flux_dn({n_col_in, n_lev, n_gpt});
 
         constexpr int n_ang = 1;
 
@@ -486,7 +484,7 @@ void Radiation_solver_longwave<TF>::solve(
                 top_at_1,
                 sources_subset_in,
                 emis_sfc_subset_in,
-                Array<TF,2>(), // Add an empty array, no inc_flux.
+                Array<Real,2>(), // Add an empty array, no inc_flux.
                 gpt_flux_up, gpt_flux_dn,
                 n_ang);
 
@@ -521,7 +519,7 @@ void Radiation_solver_longwave<TF>::solve(
         const int col_s = (b-1) * n_col_block + 1;
         const int col_e =  b    * n_col_block;
 
-        Array<TF,2> emis_sfc_subset = emis_sfc.subset({{ {1, n_bnd}, {col_s, col_e} }});
+        Array<Real,2> emis_sfc_subset = emis_sfc.subset({{ {1, n_bnd}, {col_s, col_e} }});
 
         std::unique_ptr<Fluxes_broadband> fluxes_subset =
                 std::make_unique<Fluxes_broadband>(n_col_block, n_lev);
@@ -543,7 +541,7 @@ void Radiation_solver_longwave<TF>::solve(
         const int col_s = n_col - n_col_block_residual + 1;
         const int col_e = n_col;
 
-        Array<TF,2> emis_sfc_residual = emis_sfc.subset({{ {1, n_bnd}, {col_s, col_e} }});
+        Array<Real,2> emis_sfc_residual = emis_sfc.subset({{ {1, n_bnd}, {col_s, col_e} }});
         std::unique_ptr<Fluxes_broadband> fluxes_residual =
                 std::make_unique<Fluxes_broadband>(n_col_block_residual, n_lev);
         std::unique_ptr<Fluxes_broadband> bnd_fluxes_residual =
@@ -560,8 +558,7 @@ void Radiation_solver_longwave<TF>::solve(
     }
 }
 
-template<typename TF>
-Radiation_solver_shortwave<TF>::Radiation_solver_shortwave(
+Radiation_solver_shortwave::Radiation_solver_shortwave(
         const Gas_concs& gas_concs,
         const std::string& file_name_gas,
         const std::string& file_name_cloud)
@@ -574,26 +571,25 @@ Radiation_solver_shortwave<TF>::Radiation_solver_shortwave(
             load_and_init_cloud_optics(file_name_cloud));
 }
 
-template<typename TF>
-void Radiation_solver_shortwave<TF>::solve(
+void Radiation_solver_shortwave::solve(
         const bool switch_fluxes,
         const bool switch_cloud_optics,
         const bool switch_output_optical,
         const bool switch_output_bnd_fluxes,
         const Gas_concs& gas_concs,
-        const Array<TF,2>& p_lay, const Array<TF,2>& p_lev,
-        const Array<TF,2>& t_lay, const Array<TF,2>& t_lev,
-        const Array<TF,2>& col_dry,
-        const Array<TF,2>& sfc_alb_dir, const Array<TF,2>& sfc_alb_dif,
-        const Array<TF,1>& tsi_scaling, const Array<TF,1>& mu0,
-        const Array<TF,2>& lwp, const Array<TF,2>& iwp,
-        const Array<TF,2>& rel, const Array<TF,2>& rei,
-        Array<TF,3>& tau, Array<TF,3>& ssa, Array<TF,3>& g,
-        Array<TF,2>& toa_src,
-        Array<TF,2>& sw_flux_up, Array<TF,2>& sw_flux_dn,
-        Array<TF,2>& sw_flux_dn_dir, Array<TF,2>& sw_flux_net,
-        Array<TF,3>& sw_bnd_flux_up, Array<TF,3>& sw_bnd_flux_dn,
-        Array<TF,3>& sw_bnd_flux_dn_dir, Array<TF,3>& sw_bnd_flux_net) const
+        const Array<Real,2>& p_lay, const Array<Real,2>& p_lev,
+        const Array<Real,2>& t_lay, const Array<Real,2>& t_lev,
+        const Array<Real,2>& col_dry,
+        const Array<Real,2>& sfc_alb_dir, const Array<Real,2>& sfc_alb_dif,
+        const Array<Real,1>& tsi_scaling, const Array<Real,1>& mu0,
+        const Array<Real,2>& lwp, const Array<Real,2>& iwp,
+        const Array<Real,2>& rel, const Array<Real,2>& rei,
+        Array<Real,3>& tau, Array<Real,3>& ssa, Array<Real,3>& g,
+        Array<Real,2>& toa_src,
+        Array<Real,2>& sw_flux_up, Array<Real,2>& sw_flux_dn,
+        Array<Real,2>& sw_flux_dn_dir, Array<Real,2>& sw_flux_net,
+        Array<Real,3>& sw_bnd_flux_up, Array<Real,3>& sw_bnd_flux_dn,
+        Array<Real,3>& sw_bnd_flux_dn_dir, Array<Real,3>& sw_bnd_flux_net) const
 {
     const int n_col = p_lay.dim(1);
     const int n_lay = p_lay.dim(2);
@@ -639,13 +635,13 @@ void Radiation_solver_shortwave<TF>::solve(
 
         auto p_lev_subset = p_lev.subset({{ {col_s_in, col_e_in}, {1, n_lev} }});
 
-        Array<TF,2> col_dry_subset({n_col_in, n_lay});
+        Array<Real,2> col_dry_subset({n_col_in, n_lay});
         if (col_dry.size() == 0)
             Gas_optics_rrtmgp::get_col_dry(col_dry_subset, gas_concs_subset.get_vmr("h2o"), p_lev_subset);
         else
             col_dry_subset = std::move(col_dry.subset({{ {col_s_in, col_e_in}, {1, n_lay} }}));
 
-        Array<TF,2> toa_src_subset({n_col_in, n_gpt});
+        Array<Real,2> toa_src_subset({n_col_in, n_gpt});
 
         kdist->gas_optics(
                 p_lay.subset({{ {col_s_in, col_e_in}, {1, n_lay} }}),
@@ -702,9 +698,9 @@ void Radiation_solver_shortwave<TF>::solve(
         if (!switch_fluxes)
             return;
 
-        Array<TF,3> gpt_flux_up    ({n_col_in, n_lev, n_gpt});
-        Array<TF,3> gpt_flux_dn    ({n_col_in, n_lev, n_gpt});
-        Array<TF,3> gpt_flux_dn_dir({n_col_in, n_lev, n_gpt});
+        Array<Real,3> gpt_flux_up    ({n_col_in, n_lev, n_gpt});
+        Array<Real,3> gpt_flux_dn    ({n_col_in, n_lev, n_gpt});
+        Array<Real,3> gpt_flux_dn_dir({n_col_in, n_lev, n_gpt});
 
         Rte_sw::rte_sw(
                 optical_props_subset_in,
@@ -713,7 +709,7 @@ void Radiation_solver_shortwave<TF>::solve(
                 toa_src_subset,
                 sfc_alb_dir.subset({{ {1, n_bnd}, {col_s_in, col_e_in} }}),
                 sfc_alb_dif.subset({{ {1, n_bnd}, {col_s_in, col_e_in} }}),
-                Array<TF,2>(), // Add an empty array, no inc_flux.
+                Array<Real,2>(), // Add an empty array, no inc_flux.
                 gpt_flux_up,
                 gpt_flux_dn,
                 gpt_flux_dn_dir);
@@ -782,11 +778,3 @@ void Radiation_solver_shortwave<TF>::solve(
                 *bnd_fluxes_residual);
     }
 }
-
-#ifdef FLOAT_SINGLE_RRTMGP
-template class Radiation_solver_longwave<float>;
-template class Radiation_solver_shortwave<float>;
-#else
-template class Radiation_solver_longwave<double>;
-template class Radiation_solver_shortwave<double>;
-#endif

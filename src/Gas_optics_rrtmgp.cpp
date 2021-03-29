@@ -350,7 +350,6 @@ namespace
     }
 
     /*
-    template<typename Real>
     inline void reorder123x321_test(
             Real* restrict out, const Real* restrict in,
             const int d1, const int d2, const int d3)
