@@ -29,15 +29,14 @@
 #include "Optical_props.h"
 
 template<typename, int> class Array;
-template<typename> class Optical_props;
 
-class Source_func_lw : public Optical_props<Real>
+class Source_func_lw : public Optical_props
 {
     public:
         Source_func_lw(
                 const int n_col,
                 const int n_lay,
-                const Optical_props<Real>& optical_props);
+                const Optical_props& optical_props);
 
         void set_subset(
                 const Source_func_lw& sources_sub,

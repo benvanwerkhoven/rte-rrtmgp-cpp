@@ -30,9 +30,8 @@
 
 #include "Types.h"
 #include "Array.h"
+#include "Optical_props.h"
 
-// Forward declarations.
-template<typename Real> class Optical_props_arry;
 
 class Fluxes
 {
@@ -40,14 +39,14 @@ class Fluxes
         virtual void reduce(
                 const Array<Real,3>& gpt_flux_up,
                 const Array<Real,3>& gpt_flux_dn,
-                const std::unique_ptr<Optical_props_arry<Real>>& optical_props,
+                const std::unique_ptr<Optical_props_arry>& optical_props,
                 const Bool top_at_1) = 0;
 
         virtual void reduce(
                 const Array<Real,3>& gpt_flux_up,
                 const Array<Real,3>& gpt_flux_dn,
                 const Array<Real,3>& gpt_flux_dn_dir,
-                const std::unique_ptr<Optical_props_arry<Real>>& optical_props,
+                const std::unique_ptr<Optical_props_arry>& optical_props,
                 const Bool top_at_1) = 0;
 };
 
@@ -60,14 +59,14 @@ class Fluxes_broadband : public Fluxes
         virtual void reduce(
                 const Array<Real,3>& gpt_flux_up,
                 const Array<Real,3>& gpt_flux_dn,
-                const std::unique_ptr<Optical_props_arry<Real>>& optical_props,
+                const std::unique_ptr<Optical_props_arry>& optical_props,
                 const Bool top_at_1);
 
         virtual void reduce(
                 const Array<Real,3>& gpt_flux_up,
                 const Array<Real,3>& gpt_flux_dn,
                 const Array<Real,3>& gpt_flux_dn_dir,
-                const std::unique_ptr<Optical_props_arry<Real>>& optical_props,
+                const std::unique_ptr<Optical_props_arry>& optical_props,
                 const Bool top_at_1);
 
         Array<Real,2>& get_flux_up    () { return flux_up;     }
@@ -96,14 +95,14 @@ class Fluxes_byband : public Fluxes_broadband
         virtual void reduce(
                 const Array<Real,3>& gpt_flux_up,
                 const Array<Real,3>& gpt_flux_dn,
-                const std::unique_ptr<Optical_props_arry<Real>>& optical_props,
+                const std::unique_ptr<Optical_props_arry>& optical_props,
                 const Bool top_at_1);
 
         virtual void reduce(
                 const Array<Real,3>& gpt_flux_up,
                 const Array<Real,3>& gpt_flux_dn,
                 const Array<Real,3>& gpt_flux_dn_dir,
-                const std::unique_ptr<Optical_props_arry<Real>>& optical_props,
+                const std::unique_ptr<Optical_props_arry>& optical_props,
                 const Bool top_at_1);
 
         Array<Real,3>& get_bnd_flux_up    () { return bnd_flux_up;     }

@@ -30,7 +30,7 @@ Cloud_optics::Cloud_optics(
         const Real radice_lwr, const Real radice_upr, const Real radice_fac,
         const Array<Real,2>& lut_extliq, const Array<Real,2>& lut_ssaliq, const Array<Real,2>& lut_asyliq,
         const Array<Real,3>& lut_extice, const Array<Real,3>& lut_ssaice, const Array<Real,3>& lut_asyice) :
-    Optical_props<Real>(band_lims_wvn)
+    Optical_props(band_lims_wvn)
 {
     const int nsize_liq = lut_extliq.dim(1);
     const int nsize_ice = lut_extice.dim(1);
@@ -107,14 +107,14 @@ void compute_all_from_table(
 void Cloud_optics::cloud_optics(
         const Array<Real,2>& clwp, const Array<Real,2>& ciwp,
         const Array<Real,2>& reliq, const Array<Real,2>& reice,
-        Optical_props_2str<Real>& optical_props)
+        Optical_props_2str& optical_props)
 {
     const int ncol = clwp.dim(1);
     const int nlay = clwp.dim(2);
     const int nbnd = this->get_nband();
 
-    Optical_props_2str<Real> clouds_liq(ncol, nlay, optical_props);
-    Optical_props_2str<Real> clouds_ice(ncol, nlay, optical_props);
+    Optical_props_2str clouds_liq(ncol, nlay, optical_props);
+    Optical_props_2str clouds_ice(ncol, nlay, optical_props);
 
     // Set the mask.
     constexpr Real mask_min_value = Real(0.);
@@ -171,14 +171,14 @@ void Cloud_optics::cloud_optics(
 void Cloud_optics::cloud_optics(
         const Array<Real,2>& clwp, const Array<Real,2>& ciwp,
         const Array<Real,2>& reliq, const Array<Real,2>& reice,
-        Optical_props_1scl<Real>& optical_props)
+        Optical_props_1scl& optical_props)
 {
     const int ncol = clwp.dim(1);
     const int nlay = clwp.dim(2);
     const int nbnd = this->get_nband();
 
-    Optical_props_1scl<Real> clouds_liq(ncol, nlay, optical_props);
-    Optical_props_1scl<Real> clouds_ice(ncol, nlay, optical_props);
+    Optical_props_1scl clouds_liq(ncol, nlay, optical_props);
+    Optical_props_1scl clouds_ice(ncol, nlay, optical_props);
 
     // Set the mask.
     constexpr Real mask_min_value = static_cast<Real>(0.);

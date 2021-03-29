@@ -30,14 +30,14 @@
 
 // Forward declarations.
 template<typename, int> class Array;
-template<typename> class Optical_props_arry;
+class Optical_props_arry;
 class Fluxes_broadband;
 
 class Rte_sw
 {
     public:
         static void rte_sw(
-                const std::unique_ptr<Optical_props_arry<Real>>& optical_props,
+                const std::unique_ptr<Optical_props_arry>& optical_props,
                 const Bool top_at_1,
                 const Array<Real,1>& mu0,
                 const Array<Real,2>& inc_flux_dir,
@@ -49,7 +49,7 @@ class Rte_sw
                 Array<Real,3>& gpt_flux_dir);
 
         static void expand_and_transpose(
-                const std::unique_ptr<Optical_props_arry<Real>>& ops,
+                const std::unique_ptr<Optical_props_arry>& ops,
                 const Array<Real,2> arr_in,
                 Array<Real,2>& arr_out);
 };

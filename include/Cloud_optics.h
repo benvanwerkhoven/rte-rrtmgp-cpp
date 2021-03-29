@@ -30,10 +30,7 @@
 #include "Optical_props.h"
 
 
-// Forward declarations.
-template<typename> class Optical_props;
-
-class Cloud_optics : public Optical_props<Real>
+class Cloud_optics : public Optical_props
 {
     public:
         Cloud_optics(
@@ -46,12 +43,12 @@ class Cloud_optics : public Optical_props<Real>
         void cloud_optics(
                 const Array<Real,2>& clwp, const Array<Real,2>& ciwp,
                 const Array<Real,2>& reliq, const Array<Real,2>& reice,
-                Optical_props_1scl<Real>& optical_props);
+                Optical_props_1scl& optical_props);
 
         void cloud_optics(
                 const Array<Real,2>& clwp, const Array<Real,2>& ciwp,
                 const Array<Real,2>& reliq, const Array<Real,2>& reice,
-                Optical_props_2str<Real>& optical_props);
+                Optical_props_2str& optical_props);
 
     private:
         int liq_nsteps;

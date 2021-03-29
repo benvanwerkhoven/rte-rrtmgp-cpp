@@ -381,10 +381,10 @@ void Radiation_solver_longwave<TF>::solve(
     int n_blocks = n_col / n_col_block;
     int n_col_block_residual = n_col % n_col_block;
 
-    std::unique_ptr<Optical_props_arry<TF>> optical_props_subset;
-    std::unique_ptr<Optical_props_arry<TF>> optical_props_residual;
+    std::unique_ptr<Optical_props_arry> optical_props_subset;
+    std::unique_ptr<Optical_props_arry> optical_props_residual;
 
-    optical_props_subset = std::make_unique<Optical_props_1scl<TF>>(n_col_block, n_lay, *kdist);
+    optical_props_subset = std::make_unique<Optical_props_1scl>(n_col_block, n_lay, *kdist);
 
     std::unique_ptr<Source_func_lw> sources_subset;
     std::unique_ptr<Source_func_lw> sources_residual;
@@ -393,25 +393,25 @@ void Radiation_solver_longwave<TF>::solve(
 
     if (n_col_block_residual > 0)
     {
-        optical_props_residual = std::make_unique<Optical_props_1scl<TF>>(n_col_block_residual, n_lay, *kdist);
+        optical_props_residual = std::make_unique<Optical_props_1scl>(n_col_block_residual, n_lay, *kdist);
         sources_residual = std::make_unique<Source_func_lw>(n_col_block_residual, n_lay, *kdist);
     }
 
-    std::unique_ptr<Optical_props_1scl<TF>> cloud_optical_props_subset;
-    std::unique_ptr<Optical_props_1scl<TF>> cloud_optical_props_residual;
+    std::unique_ptr<Optical_props_1scl> cloud_optical_props_subset;
+    std::unique_ptr<Optical_props_1scl> cloud_optical_props_residual;
 
     if (switch_cloud_optics)
     {
-        cloud_optical_props_subset = std::make_unique<Optical_props_1scl<TF>>(n_col_block, n_lay, *cloud_optics);
+        cloud_optical_props_subset = std::make_unique<Optical_props_1scl>(n_col_block, n_lay, *cloud_optics);
         if (n_col_block_residual > 0)
-            cloud_optical_props_residual = std::make_unique<Optical_props_1scl<TF>>(n_col_block_residual, n_lay, *cloud_optics);
+            cloud_optical_props_residual = std::make_unique<Optical_props_1scl>(n_col_block_residual, n_lay, *cloud_optics);
     }
 
     // Lambda function for solving optical properties subset.
     auto call_kernels = [&](
             const int col_s_in, const int col_e_in,
-            std::unique_ptr<Optical_props_arry<TF>>& optical_props_subset_in,
-            std::unique_ptr<Optical_props_1scl<TF>>& cloud_optical_props_subset_in,
+            std::unique_ptr<Optical_props_arry>& optical_props_subset_in,
+            std::unique_ptr<Optical_props_1scl>& cloud_optical_props_subset_in,
             Source_func_lw& sources_subset_in,
             const Array<TF,2>& emis_sfc_subset_in,
             Fluxes_broadband& fluxes,
@@ -452,8 +452,8 @@ void Radiation_solver_longwave<TF>::solve(
 
             // Add the cloud optical props to the gas optical properties.
             add_to(
-                    dynamic_cast<Optical_props_1scl<TF>&>(*optical_props_subset_in),
-                    dynamic_cast<Optical_props_1scl<TF>&>(*cloud_optical_props_subset_in));
+                    dynamic_cast<Optical_props_1scl&>(*optical_props_subset_in),
+                    dynamic_cast<Optical_props_1scl&>(*cloud_optical_props_subset_in));
         }
 
         // Store the optical properties, if desired.
@@ -610,28 +610,28 @@ void Radiation_solver_shortwave<TF>::solve(
     int n_blocks = n_col / n_col_block;
     int n_col_block_residual = n_col % n_col_block;
 
-    std::unique_ptr<Optical_props_arry<TF>> optical_props_subset;
-    std::unique_ptr<Optical_props_arry<TF>> optical_props_residual;
+    std::unique_ptr<Optical_props_arry> optical_props_subset;
+    std::unique_ptr<Optical_props_arry> optical_props_residual;
 
-    optical_props_subset = std::make_unique<Optical_props_2str<TF>>(n_col_block, n_lay, *kdist);
+    optical_props_subset = std::make_unique<Optical_props_2str>(n_col_block, n_lay, *kdist);
     if (n_col_block_residual > 0)
-        optical_props_residual = std::make_unique<Optical_props_2str<TF>>(n_col_block_residual, n_lay, *kdist);
+        optical_props_residual = std::make_unique<Optical_props_2str>(n_col_block_residual, n_lay, *kdist);
 
-    std::unique_ptr<Optical_props_2str<TF>> cloud_optical_props_subset;
-    std::unique_ptr<Optical_props_2str<TF>> cloud_optical_props_residual;
+    std::unique_ptr<Optical_props_2str> cloud_optical_props_subset;
+    std::unique_ptr<Optical_props_2str> cloud_optical_props_residual;
 
     if (switch_cloud_optics)
     {
-        cloud_optical_props_subset = std::make_unique<Optical_props_2str<TF>>(n_col_block, n_lay, *cloud_optics);
+        cloud_optical_props_subset = std::make_unique<Optical_props_2str>(n_col_block, n_lay, *cloud_optics);
         if (n_col_block_residual > 0)
-            cloud_optical_props_residual = std::make_unique<Optical_props_2str<TF>>(n_col_block_residual, n_lay, *cloud_optics);
+            cloud_optical_props_residual = std::make_unique<Optical_props_2str>(n_col_block_residual, n_lay, *cloud_optics);
     }
 
     // Lambda function for solving optical properties subset.
     auto call_kernels = [&](
             const int col_s_in, const int col_e_in,
-            std::unique_ptr<Optical_props_arry<TF>>& optical_props_subset_in,
-            std::unique_ptr<Optical_props_2str<TF>>& cloud_optical_props_subset_in,
+            std::unique_ptr<Optical_props_arry>& optical_props_subset_in,
+            std::unique_ptr<Optical_props_2str>& cloud_optical_props_subset_in,
             Fluxes_broadband& fluxes,
             Fluxes_broadband& bnd_fluxes)
     {
@@ -679,8 +679,8 @@ void Radiation_solver_shortwave<TF>::solve(
 
             // Add the cloud optical props to the gas optical properties.
             add_to(
-                    dynamic_cast<Optical_props_2str<TF>&>(*optical_props_subset_in),
-                    dynamic_cast<Optical_props_2str<TF>&>(*cloud_optical_props_subset_in));
+                    dynamic_cast<Optical_props_2str&>(*optical_props_subset_in),
+                    dynamic_cast<Optical_props_2str&>(*cloud_optical_props_subset_in));
         }
 
         // Store the optical properties, if desired.

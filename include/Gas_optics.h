@@ -35,13 +35,13 @@ class Gas_concs;
 class Source_func_lw;
 
 template<typename TF>
-class Gas_optics : public Optical_props<TF>
+class Gas_optics : public Optical_props
 {
     public:
         Gas_optics(
                 const Array<TF,2>& band_lims_wvn,
                 const Array<int,2>& band_lims_gpt) :
-            Optical_props<TF>(band_lims_wvn, band_lims_gpt)
+            Optical_props(band_lims_wvn, band_lims_gpt)
         {}
 
         virtual ~Gas_optics() {};
@@ -62,7 +62,7 @@ class Gas_optics : public Optical_props<TF>
                 const Array<TF,2>& tlay,
                 const Array<TF,1>& tsfc,
                 const Gas_concs& gas_desc,
-                std::unique_ptr<Optical_props_arry<TF>>& optical_props,
+                std::unique_ptr<Optical_props_arry>& optical_props,
                 Source_func_lw& sources,
                 const Array<TF,2>& col_dry,
                 const Array<TF,2>& tlev) const = 0;
@@ -73,7 +73,7 @@ class Gas_optics : public Optical_props<TF>
                 const Array<TF,2>& plev,
                 const Array<TF,2>& tlay,
                 const Gas_concs& gas_desc,
-                std::unique_ptr<Optical_props_arry<TF>>& optical_props,
+                std::unique_ptr<Optical_props_arry>& optical_props,
                 Array<TF,2>& toa_src,
                 const Array<TF,2>& col_dry) const = 0;
 

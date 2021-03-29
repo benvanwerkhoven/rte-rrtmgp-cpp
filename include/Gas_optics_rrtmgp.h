@@ -32,9 +32,6 @@
 #include "Gas_optics.h"
 
 // Forward declarations.
-// template<typename TF> class Gas_optics;
-template<typename TF> class Optical_props;
-template<typename TF> class Optical_props_arry;
 class Gas_concs;
 class Source_func_lw;
 
@@ -145,7 +142,7 @@ class Gas_optics_rrtmgp : public Gas_optics<TF>
                 const Array<TF,2>& tlay,
                 const Array<TF,1>& tsfc,
                 const Gas_concs& gas_desc,
-                std::unique_ptr<Optical_props_arry<TF>>& optical_props,
+                std::unique_ptr<Optical_props_arry>& optical_props,
                 Source_func_lw& sources,
                 const Array<TF,2>& col_dry,
                 const Array<TF,2>& tlev) const;
@@ -156,7 +153,7 @@ class Gas_optics_rrtmgp : public Gas_optics<TF>
                 const Array<TF,2>& plev,
                 const Array<TF,2>& tlay,
                 const Gas_concs& gas_desc,
-                std::unique_ptr<Optical_props_arry<TF>>& optical_props,
+                std::unique_ptr<Optical_props_arry>& optical_props,
                 Array<TF,2>& toa_src,
                 const Array<TF,2>& col_dry) const;
 
@@ -255,7 +252,7 @@ class Gas_optics_rrtmgp : public Gas_optics<TF>
                 const Array<TF,2>& plev,
                 const Array<TF,2>& tlay,
                 const Gas_concs& gas_desc,
-                std::unique_ptr<Optical_props_arry<TF>>& optical_props,
+                std::unique_ptr<Optical_props_arry>& optical_props,
                 Array<int,2>& jtemp, Array<int,2>& jpress,
                 Array<int,4>& jeta,
                 Array<Bool,2>& tropo,
@@ -266,7 +263,7 @@ class Gas_optics_rrtmgp : public Gas_optics<TF>
                 const Array<TF,3>& tau,
                 const Array<TF,3>& tau_rayleigh,
                 const bool has_rayleigh,
-                std::unique_ptr<Optical_props_arry<TF>>& optical_props) const;
+                std::unique_ptr<Optical_props_arry>& optical_props) const;
 
         void source(
                 const int ncol, const int nlay, const int nband, const int ngpt,

@@ -87,7 +87,7 @@ Fluxes_broadband::Fluxes_broadband(const int ncol, const int nlev) :
 
 void Fluxes_broadband::reduce(
     const Array<Real,3>& gpt_flux_up, const Array<Real,3>& gpt_flux_dn,
-    const std::unique_ptr<Optical_props_arry<Real>>& spectral_disc,
+    const std::unique_ptr<Optical_props_arry>& spectral_disc,
     const Bool top_at_1)
 {
     const int ncol = gpt_flux_up.dim(1);
@@ -107,7 +107,7 @@ void Fluxes_broadband::reduce(
 // CvH: unnecessary code duplication.
 void Fluxes_broadband::reduce(
     const Array<Real,3>& gpt_flux_up, const Array<Real,3>& gpt_flux_dn, const Array<Real,3>& gpt_flux_dn_dir,
-    const std::unique_ptr<Optical_props_arry<Real>>& spectral_disc,
+    const std::unique_ptr<Optical_props_arry>& spectral_disc,
     const Bool top_at_1)
 {
     const int ncol = gpt_flux_up.dim(1);
@@ -132,7 +132,7 @@ Fluxes_byband::Fluxes_byband(const int ncol, const int nlev, const int nbnd) :
 void Fluxes_byband::reduce(
     const Array<Real,3>& gpt_flux_up,
     const Array<Real,3>& gpt_flux_dn,
-    const std::unique_ptr<Optical_props_arry<Real>>& spectral_disc,
+    const std::unique_ptr<Optical_props_arry>& spectral_disc,
     const Bool top_at_1)
 {
     const int ncol = gpt_flux_up.dim(1);
@@ -164,7 +164,7 @@ void Fluxes_byband::reduce(
     const Array<Real,3>& gpt_flux_up,
     const Array<Real,3>& gpt_flux_dn,
     const Array<Real,3>& gpt_flux_dn_dir,
-    const std::unique_ptr<Optical_props_arry<Real>>& spectral_disc,
+    const std::unique_ptr<Optical_props_arry>& spectral_disc,
     const Bool top_at_1)
 {
     const int ncol = gpt_flux_up.dim(1);
