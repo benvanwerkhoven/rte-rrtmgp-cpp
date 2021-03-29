@@ -26,13 +26,13 @@
 
 namespace
 {
-    template<typename TF>__global__
+    __global__
     void compute_from_table_kernel(
-            const int ncol, const int nlay, const int nbnd, const BOOL_TYPE* mask,
-            const TF* cwp, const TF* re,
-            const int nsteps, const TF step_size, const TF offset,
-            const TF* tau_table, const TF* ssa_table, const TF* asy_table,
-            TF* tau, TF* taussa, TF* taussag)
+            const int ncol, const int nlay, const int nbnd, const Bool* mask,
+            const Real* cwp, const Real* re,
+            const int nsteps, const Real step_size, const Real offset,
+            const Real* tau_table, const Real* ssa_table, const Real* asy_table,
+            Real* tau, Real* taussa, Real* taussag)
     {
         const int ibnd = blockIdx.x*blockDim.x + threadIdx.x;
         const int ilay = blockIdx.y*blockDim.y + threadIdx.y;
@@ -47,12 +47,12 @@ namespace
             {
                 const int index = min(int((re[idx_2d] - offset) / step_size) + 1, nsteps-1) - 1;
                 const int idx_ib = index + ibnd*nsteps;
-                const TF fint = (re[idx_2d] - offset) /step_size - (index);
-                const TF tau_local = cwp[idx_2d] *
+                const Real fint = (re[idx_2d] - offset) /step_size - (index);
+                const Real tau_local = cwp[idx_2d] *
                                      (tau_table[idx_ib] + fint * (tau_table[idx_ib+1] - tau_table[idx_ib]));
-                const TF taussa_local = tau_local *
+                const Real taussa_local = tau_local *
                                      (ssa_table[idx_ib] + fint * (ssa_table[idx_ib+1] - ssa_table[idx_ib]));
-                const TF taussag_local = taussa_local *
+                const Real taussag_local = taussa_local *
                                      (asy_table[idx_ib] + fint * (asy_table[idx_ib+1] - asy_table[idx_ib]));
 
                 tau[idx_3d]     = tau_local;
@@ -61,18 +61,18 @@ namespace
             }
             else
             {
-                tau[idx_3d]     = TF(0.);
-                taussa[idx_3d]  = TF(0.);
-                taussag[idx_3d] = TF(0.);
+                tau[idx_3d]     = Real(0.);
+                taussa[idx_3d]  = Real(0.);
+                taussag[idx_3d] = Real(0.);
             }
         }
     }
 
-    template<typename TF>__global__
-    void combine_and_store_kernel(const int ncol, const int nlay, const int nbnd, const TF tmin,
-                  TF* __restrict__ tau,
-                  const TF* __restrict__ ltau, const TF* __restrict__ ltaussa,
-                  const TF* __restrict__ itau, const TF* __restrict__ itaussa)
+    __global__
+    void combine_and_store_kernel(const int ncol, const int nlay, const int nbnd, const Real tmin,
+                  Real* __restrict__ tau,
+                  const Real* __restrict__ ltau, const Real* __restrict__ ltaussa,
+                  const Real* __restrict__ itau, const Real* __restrict__ itaussa)
     {
         const int ibnd = blockIdx.x*blockDim.x + threadIdx.x;
         const int ilay = blockIdx.y*blockDim.y + threadIdx.y;
@@ -81,17 +81,17 @@ namespace
         if ( (icol < ncol) && (ilay < nlay) && (ibnd < nbnd) )
         {
             const int idx = icol + ilay*ncol + ibnd*nlay*ncol;
-            const TF tau_t = (ltau[idx] - ltaussa[idx]) + (itau[idx] - itaussa[idx]);
+            const Real tau_t = (ltau[idx] - ltaussa[idx]) + (itau[idx] - itaussa[idx]);
 
             tau[idx] = tau_t;
         }
     }
 
-    template<typename TF>__global__
-    void combine_and_store_kernel(const int ncol, const int nlay, const int nbnd, const TF tmin,
-                  TF* __restrict__ tau, TF* __restrict__ ssa, TF* __restrict__ g,
-                  const TF* __restrict__ ltau, const TF* __restrict__ ltaussa, const TF* __restrict__ ltaussag,
-                  const TF* __restrict__ itau, const TF* __restrict__ itaussa, const TF* __restrict__ itaussag)
+    __global__
+    void combine_and_store_kernel(const int ncol, const int nlay, const int nbnd, const Real tmin,
+                  Real* __restrict__ tau, Real* __restrict__ ssa, Real* __restrict__ g,
+                  const Real* __restrict__ ltau, const Real* __restrict__ ltaussa, const Real* __restrict__ ltaussag,
+                  const Real* __restrict__ itau, const Real* __restrict__ itaussa, const Real* __restrict__ itaussag)
     {
         const int ibnd = blockIdx.x*blockDim.x + threadIdx.x;
         const int ilay = blockIdx.y*blockDim.y + threadIdx.y;
@@ -100,9 +100,9 @@ namespace
         if ( (icol < ncol) && (ilay < nlay) && (ibnd < nbnd) )
         {
             const int idx = icol + ilay*ncol + ibnd*nlay*ncol;
-            const TF tau_t = ltau[idx] + itau[idx];
-            const TF taussa = ltaussa[idx] + itaussa[idx];
-            const TF taussag = ltaussag[idx] + itaussag[idx];
+            const Real tau_t = ltau[idx] + itau[idx];
+            const Real taussa = ltaussa[idx] + itaussa[idx];
+            const Real taussag = ltaussag[idx] + itaussag[idx];
 
             tau[idx] = tau_t;
             ssa[idx] = taussa / max(tau_t, tmin);
@@ -110,9 +110,9 @@ namespace
         }
     }
 
-    template<typename TF>__global__
-    void set_mask(const int ncol, const int nlay, const TF min_value,
-                  BOOL_TYPE* __restrict__ mask, const TF* __restrict__ values)
+    __global__
+    void set_mask(const int ncol, const int nlay, const Real min_value,
+                  Bool* __restrict__ mask, const Real* __restrict__ values)
     {
         const int icol = blockIdx.x*blockDim.x + threadIdx.x;
         const int ilay = blockIdx.y*blockDim.y + threadIdx.y;
@@ -126,22 +126,21 @@ namespace
 }
 
 
-template<typename TF>
-Cloud_optics_gpu<TF>::Cloud_optics_gpu(
-        const Array<TF,2>& band_lims_wvn,
-        const TF radliq_lwr, const TF radliq_upr, const TF radliq_fac,
-        const TF radice_lwr, const TF radice_upr, const TF radice_fac,
-        const Array<TF,2>& lut_extliq, const Array<TF,2>& lut_ssaliq, const Array<TF,2>& lut_asyliq,
-        const Array<TF,3>& lut_extice, const Array<TF,3>& lut_ssaice, const Array<TF,3>& lut_asyice) :
-    Optical_props_gpu<TF>(band_lims_wvn)
+Cloud_optics_gpu::Cloud_optics_gpu(
+        const Array<Real,2>& band_lims_wvn,
+        const Real radliq_lwr, const Real radliq_upr, const Real radliq_fac,
+        const Real radice_lwr, const Real radice_upr, const Real radice_fac,
+        const Array<Real,2>& lut_extliq, const Array<Real,2>& lut_ssaliq, const Array<Real,2>& lut_asyliq,
+        const Array<Real,3>& lut_extice, const Array<Real,3>& lut_ssaice, const Array<Real,3>& lut_asyice) :
+    Optical_props_gpu(band_lims_wvn)
 {
     const int nsize_liq = lut_extliq.dim(1);
     const int nsize_ice = lut_extice.dim(1);
 
     this->liq_nsteps = nsize_liq;
     this->ice_nsteps = nsize_ice;
-    this->liq_step_size = (radliq_upr - radliq_lwr) / (nsize_liq - TF(1.));
-    this->ice_step_size = (radice_upr - radice_lwr) / (nsize_ice - TF(1.));
+    this->liq_step_size = (radliq_upr - radliq_lwr) / (nsize_liq - Real(1.));
+    this->ice_step_size = (radice_upr - radice_lwr) / (nsize_ice - Real(1.));
 
     // Load LUT constants.
     this->radliq_lwr = radliq_lwr;
@@ -178,21 +177,20 @@ Cloud_optics_gpu<TF>::Cloud_optics_gpu(
 
 
 // Two-stream variant of cloud optics.
-template<typename TF>
-void Cloud_optics_gpu<TF>::cloud_optics(
-        const Array_gpu<TF,2>& clwp, const Array_gpu<TF,2>& ciwp,
-        const Array_gpu<TF,2>& reliq, const Array_gpu<TF,2>& reice,
-        Optical_props_2str_gpu<TF>& optical_props)
+void Cloud_optics_gpu::cloud_optics(
+        const Array_gpu<Real,2>& clwp, const Array_gpu<Real,2>& ciwp,
+        const Array_gpu<Real,2>& reliq, const Array_gpu<Real,2>& reice,
+        Optical_props_2str_gpu& optical_props)
 {
     const int ncol = clwp.dim(1);
     const int nlay = clwp.dim(2);
     const int nbnd = this->get_nband();
 
-    Optical_props_2str_gpu<TF> clouds_liq(ncol, nlay, optical_props);
-    Optical_props_2str_gpu<TF> clouds_ice(ncol, nlay, optical_props);
+    Optical_props_2str_gpu clouds_liq(ncol, nlay, optical_props);
+    Optical_props_2str_gpu clouds_ice(ncol, nlay, optical_props);
 
     // Set the mask.
-    constexpr TF mask_min_value = TF(0.);
+    constexpr Real mask_min_value = Real(0.);
     const int block_col_m = 16;
     const int block_lay_m = 16;
 
@@ -202,22 +200,22 @@ void Cloud_optics_gpu<TF>::cloud_optics(
     dim3 grid_m_gpu(grid_col_m, grid_lay_m);
     dim3 block_m_gpu(block_col_m, block_lay_m);
 
-    Array_gpu<BOOL_TYPE,2> liqmsk({ncol, nlay});
+    Array_gpu<Bool,2> liqmsk({ncol, nlay});
     set_mask<<<grid_m_gpu, block_m_gpu>>>(
             ncol, nlay, mask_min_value, liqmsk.ptr(), clwp.ptr());
 
-    Array_gpu<BOOL_TYPE,2> icemsk({ncol, nlay});
+    Array_gpu<Bool,2> icemsk({ncol, nlay});
     set_mask<<<grid_m_gpu, block_m_gpu>>>(
             ncol, nlay, mask_min_value, icemsk.ptr(), ciwp.ptr());
 
     // Temporary arrays for storage.
-    Array_gpu<TF,3> ltau    ({ncol, nlay, nbnd});
-    Array_gpu<TF,3> ltaussa ({ncol, nlay, nbnd});
-    Array_gpu<TF,3> ltaussag({ncol, nlay, nbnd});
+    Array_gpu<Real,3> ltau    ({ncol, nlay, nbnd});
+    Array_gpu<Real,3> ltaussa ({ncol, nlay, nbnd});
+    Array_gpu<Real,3> ltaussag({ncol, nlay, nbnd});
 
-    Array_gpu<TF,3> itau    ({ncol, nlay, nbnd});
-    Array_gpu<TF,3> itaussa ({ncol, nlay, nbnd});
-    Array_gpu<TF,3> itaussag({ncol, nlay, nbnd});
+    Array_gpu<Real,3> itau    ({ncol, nlay, nbnd});
+    Array_gpu<Real,3> itaussa ({ncol, nlay, nbnd});
+    Array_gpu<Real,3> itaussag({ncol, nlay, nbnd});
 
     const int block_bnd = 14;
     const int block_lay = 1;
@@ -244,7 +242,7 @@ void Cloud_optics_gpu<TF>::cloud_optics(
             this->lut_extice_gpu.ptr(), this->lut_ssaice_gpu.ptr(),
             this->lut_asyice_gpu.ptr(), itau.ptr(), itaussa.ptr(), itaussag.ptr());
 
-    constexpr TF eps = std::numeric_limits<TF>::epsilon();
+    constexpr Real eps = std::numeric_limits<Real>::epsilon();
 
     combine_and_store_kernel<<<grid_gpu, block_gpu>>>(
             ncol, nlay, nbnd, eps,
@@ -254,21 +252,20 @@ void Cloud_optics_gpu<TF>::cloud_optics(
 }
 
 // 1scl variant of cloud optics.
-template<typename TF>
-void Cloud_optics_gpu<TF>::cloud_optics(
-        const Array_gpu<TF,2>& clwp, const Array_gpu<TF,2>& ciwp,
-        const Array_gpu<TF,2>& reliq, const Array_gpu<TF,2>& reice,
-        Optical_props_1scl_gpu<TF>& optical_props)
+void Cloud_optics_gpu::cloud_optics(
+        const Array_gpu<Real,2>& clwp, const Array_gpu<Real,2>& ciwp,
+        const Array_gpu<Real,2>& reliq, const Array_gpu<Real,2>& reice,
+        Optical_props_1scl_gpu& optical_props)
 {
     const int ncol = clwp.dim(1);
     const int nlay = clwp.dim(2);
     const int nbnd = this->get_nband();
 
-    Optical_props_1scl_gpu<TF> clouds_liq(ncol, nlay, optical_props);
-    Optical_props_1scl_gpu<TF> clouds_ice(ncol, nlay, optical_props);
+    Optical_props_1scl_gpu clouds_liq(ncol, nlay, optical_props);
+    Optical_props_1scl_gpu clouds_ice(ncol, nlay, optical_props);
 
     // Set the mask.
-    constexpr TF mask_min_value = TF(0.);
+    constexpr Real mask_min_value = Real(0.);
     const int block_col_m = 16;
     const int block_lay_m = 16;
 
@@ -278,22 +275,22 @@ void Cloud_optics_gpu<TF>::cloud_optics(
     dim3 grid_m_gpu(grid_col_m, grid_lay_m);
     dim3 block_m_gpu(block_col_m, block_lay_m);
 
-    Array_gpu<BOOL_TYPE,2> liqmsk({ncol, nlay});
+    Array_gpu<Bool,2> liqmsk({ncol, nlay});
     set_mask<<<grid_m_gpu, block_m_gpu>>>(
             ncol, nlay, mask_min_value, liqmsk.ptr(), clwp.ptr());
 
-    Array_gpu<BOOL_TYPE,2> icemsk({ncol, nlay});
+    Array_gpu<Bool,2> icemsk({ncol, nlay});
     set_mask<<<grid_m_gpu, block_m_gpu>>>(
             ncol, nlay, mask_min_value, icemsk.ptr(), ciwp.ptr());
 
     // Temporary arrays for storage.
-    Array_gpu<TF,3> ltau    ({ncol, nlay, nbnd});
-    Array_gpu<TF,3> ltaussa ({ncol, nlay, nbnd});
-    Array_gpu<TF,3> ltaussag({ncol, nlay, nbnd});
+    Array_gpu<Real,3> ltau    ({ncol, nlay, nbnd});
+    Array_gpu<Real,3> ltaussa ({ncol, nlay, nbnd});
+    Array_gpu<Real,3> ltaussag({ncol, nlay, nbnd});
 
-    Array_gpu<TF,3> itau    ({ncol, nlay, nbnd});
-    Array_gpu<TF,3> itaussa ({ncol, nlay, nbnd});
-    Array_gpu<TF,3> itaussag({ncol, nlay, nbnd});
+    Array_gpu<Real,3> itau    ({ncol, nlay, nbnd});
+    Array_gpu<Real,3> itaussa ({ncol, nlay, nbnd});
+    Array_gpu<Real,3> itaussag({ncol, nlay, nbnd});
 
     const int block_bnd = 14;
     const int block_lay = 1;
@@ -320,7 +317,7 @@ void Cloud_optics_gpu<TF>::cloud_optics(
             this->lut_extice_gpu.ptr(), this->lut_ssaice_gpu.ptr(),
             this->lut_asyice_gpu.ptr(), itau.ptr(), itaussa.ptr(), itaussag.ptr());
 
-    constexpr TF eps = std::numeric_limits<TF>::epsilon();
+    constexpr Real eps = std::numeric_limits<Real>::epsilon();
 
     combine_and_store_kernel<<<grid_gpu, block_gpu>>>(
             ncol, nlay, nbnd, eps,
@@ -328,9 +325,3 @@ void Cloud_optics_gpu<TF>::cloud_optics(
             ltau.ptr(), ltaussa.ptr(),
             itau.ptr(), itaussa.ptr());
 }
-
-#ifdef FLOAT_SINGLE_RRTMGP
-template class Cloud_optics_gpu<float>;
-#else
-template class Cloud_optics_gpu<double>;
-#endif

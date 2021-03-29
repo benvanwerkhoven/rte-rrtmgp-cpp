@@ -7,26 +7,26 @@
 
 namespace
 {
-    template<typename TF>__device__
-    void lw_source_noscat_kernel(const int icol, const int igpt, const int ncol, const int nlay, const int ngpt, const TF eps,
-                                 const TF* __restrict__ lay_source, const TF* __restrict__ lev_source_up, const TF* __restrict__ lev_source_dn,
-                                 const TF* __restrict__ tau, const TF* __restrict__ trans, TF* __restrict__ source_dn, TF* __restrict__ source_up)
+    __device__
+    void lw_source_noscat_kernel(const int icol, const int igpt, const int ncol, const int nlay, const int ngpt, const Real eps,
+                                 const Real* __restrict__ lay_source, const Real* __restrict__ lev_source_up, const Real* __restrict__ lev_source_dn,
+                                 const Real* __restrict__ tau, const Real* __restrict__ trans, Real* __restrict__ source_dn, Real* __restrict__ source_up)
     {
-        const TF tau_thres = sqrt(eps);
+        const Real tau_thres = sqrt(eps);
         for (int ilay=0; ilay<nlay; ++ilay)
         {
             const int idx = icol + ilay*ncol + igpt*ncol*nlay;
-            const TF fact = (tau[idx]>tau_thres) ? (TF(1.) - trans[idx]) / tau[idx] - trans[idx] : tau[idx] * (TF(.5) - TF(1.)/TF(3.)*tau[idx]);
-            source_dn[idx] = (TF(1.) - trans[idx]) * lev_source_dn[idx] + TF(2.) * fact * (lay_source[idx]-lev_source_dn[idx]);
-            source_up[idx] = (TF(1.) - trans[idx]) * lev_source_up[idx] + TF(2.) * fact * (lay_source[idx]-lev_source_up[idx]);
+            const Real fact = (tau[idx]>tau_thres) ? (Real(1.) - trans[idx]) / tau[idx] - trans[idx] : tau[idx] * (Real(.5) - Real(1.)/Real(3.)*tau[idx]);
+            source_dn[idx] = (Real(1.) - trans[idx]) * lev_source_dn[idx] + Real(2.) * fact * (lay_source[idx]-lev_source_dn[idx]);
+            source_up[idx] = (Real(1.) - trans[idx]) * lev_source_up[idx] + Real(2.) * fact * (lay_source[idx]-lev_source_up[idx]);
         }
     }
 
-    template<typename TF>__device__
-    void lw_transport_noscat_kernel(const int icol, const int igpt, const int ncol, const int nlay, const int ngpt, const BOOL_TYPE top_at_1,
-                                 const TF* __restrict__ tau, const TF* __restrict__ trans, const TF* __restrict__ sfc_albedo,
-                                 const TF* __restrict__ source_dn, const TF* __restrict__ source_up, const TF* __restrict__ source_sfc,
-                                 TF* __restrict__ radn_up, TF* __restrict__ radn_dn, const TF* __restrict__ source_sfc_jac, TF* __restrict__ radn_up_jac)
+    __device__
+    void lw_transport_noscat_kernel(const int icol, const int igpt, const int ncol, const int nlay, const int ngpt, const Bool top_at_1,
+                                 const Real* __restrict__ tau, const Real* __restrict__ trans, const Real* __restrict__ sfc_albedo,
+                                 const Real* __restrict__ source_dn, const Real* __restrict__ source_up, const Real* __restrict__ source_sfc,
+                                 Real* __restrict__ radn_up, Real* __restrict__ radn_dn, const Real* __restrict__ source_sfc_jac, Real* __restrict__ radn_up_jac)
     {
         if (top_at_1)
         {
@@ -79,18 +79,18 @@ namespace
 
     }
 
-    template<typename TF>__device__
-    void lw_solver_noscat_kernel(const int icol, const int igpt, const int ncol, const int nlay, const int ngpt, const TF eps, const BOOL_TYPE top_at_1,
-                                 const TF D, const TF weight, const TF* __restrict__ tau, const TF* __restrict__ lay_source,
-                                 const TF* __restrict__ lev_source_inc, const TF* __restrict__ lev_source_dec, const TF* __restrict__ sfc_emis,
-                                 const TF* __restrict__ sfc_src, TF* __restrict__ radn_up, TF* __restrict__ radn_dn,
-                                 const TF* __restrict__ sfc_src_jac, TF* __restrict__ radn_up_jac, TF* __restrict__ tau_loc,
-                                 TF* __restrict__ trans, TF* __restrict__ source_dn, TF* __restrict__ source_up,
-                                 TF* __restrict__ source_sfc, TF* __restrict__ sfc_albedo, TF* __restrict__ source_sfc_jac)
+    __device__
+    void lw_solver_noscat_kernel(const int icol, const int igpt, const int ncol, const int nlay, const int ngpt, const Real eps, const Bool top_at_1,
+                                 const Real D, const Real weight, const Real* __restrict__ tau, const Real* __restrict__ lay_source,
+                                 const Real* __restrict__ lev_source_inc, const Real* __restrict__ lev_source_dec, const Real* __restrict__ sfc_emis,
+                                 const Real* __restrict__ sfc_src, Real* __restrict__ radn_up, Real* __restrict__ radn_dn,
+                                 const Real* __restrict__ sfc_src_jac, Real* __restrict__ radn_up_jac, Real* __restrict__ tau_loc,
+                                 Real* __restrict__ trans, Real* __restrict__ source_dn, Real* __restrict__ source_up,
+                                 Real* __restrict__ source_sfc, Real* __restrict__ sfc_albedo, Real* __restrict__ source_sfc_jac)
     {
-        const TF pi = acos(TF(-1.));
-        const TF* lev_source_up;
-        const TF* lev_source_dn;
+        const Real pi = acos(Real(-1.));
+        const Real* lev_source_up;
+        const Real* lev_source_dn;
         int top_level;
         if (top_at_1)
         {
@@ -105,7 +105,7 @@ namespace
             lev_source_dn = lev_source_dec;
         }
         const int idx_top = icol + top_level*ncol + igpt*ncol*(nlay+1);
-        radn_dn[idx_top] = radn_dn[idx_top] / (TF(2.) * pi * weight);
+        radn_dn[idx_top] = radn_dn[idx_top] / (Real(2.) * pi * weight);
 
         const int idx2d = icol + igpt*ncol;
 
@@ -119,7 +119,7 @@ namespace
         lw_source_noscat_kernel(icol, igpt, ncol, nlay, ngpt, eps, lay_source, lev_source_up, lev_source_dn,
                          tau_loc, trans, source_dn, source_up);
 
-        sfc_albedo[idx2d] = TF(1.) - sfc_emis[idx2d];
+        sfc_albedo[idx2d] = Real(1.) - sfc_emis[idx2d];
         source_sfc[idx2d] = sfc_emis[idx2d] * sfc_src[idx2d];
         source_sfc_jac[idx2d] = sfc_emis[idx2d] * sfc_src_jac[idx2d];
 
@@ -129,19 +129,19 @@ namespace
         for (int ilev=0; ilev<(nlay+1); ++ilev)
         {
             const int idx = icol + ilev*ncol + igpt*ncol*(nlay+1);
-            radn_up[idx] *= TF(2.) * pi * weight;
-            radn_dn[idx] *= TF(2.) * pi * weight;
-            radn_up_jac[idx] *= TF(2.) * pi * weight;
+            radn_up[idx] *= Real(2.) * pi * weight;
+            radn_dn[idx] *= Real(2.) * pi * weight;
+            radn_up_jac[idx] *= Real(2.) * pi * weight;
         }
     }
 
-    template<typename TF>__device__
+    __device__
     void sw_adding_kernel(const int icol, const int igpt,
-                          const int ncol, const int nlay, const BOOL_TYPE top_at_1,
-                          const TF* __restrict__ sfc_alb_dif, const TF* __restrict__ r_dif, const TF* __restrict__ t_dif,
-                          const TF* __restrict__ source_dn, const TF* __restrict__ source_up, const TF* __restrict__ source_sfc,
-                          TF* __restrict__ flux_up, TF* __restrict__ flux_dn, const TF* __restrict__ flux_dir,
-                          TF* __restrict__ albedo, TF* __restrict__ src, TF* __restrict__ denom)
+                          const int ncol, const int nlay, const Bool top_at_1,
+                          const Real* __restrict__ sfc_alb_dif, const Real* __restrict__ r_dif, const Real* __restrict__ t_dif,
+                          const Real* __restrict__ source_dn, const Real* __restrict__ source_up, const Real* __restrict__ source_sfc,
+                          Real* __restrict__ flux_up, Real* __restrict__ flux_dn, const Real* __restrict__ flux_dir,
+                          Real* __restrict__ albedo, Real* __restrict__ src, Real* __restrict__ denom)
     {
         if (top_at_1)
         {
@@ -155,7 +155,7 @@ namespace
                 const int lay_idx  = icol + ilay*ncol + igpt*ncol*nlay;
                 const int lev_idx1 = icol + ilay*ncol + igpt*ncol*(nlay+1);
                 const int lev_idx2 = icol + (ilay+1)*ncol + igpt*ncol*(nlay+1);
-                denom[lay_idx] = TF(1.)/(TF(1.) - r_dif[lay_idx] * albedo[lev_idx2]);
+                denom[lay_idx] = Real(1.)/(Real(1.) - r_dif[lay_idx] * albedo[lev_idx2]);
                 albedo[lev_idx1] = r_dif[lay_idx] + t_dif[lay_idx] * t_dif[lay_idx]
                                                   * albedo[lev_idx2] * denom[lay_idx];
                 src[lev_idx1] = source_up[lay_idx] + t_dif[lay_idx] * denom[lay_idx] *
@@ -193,7 +193,7 @@ namespace
                 const int lay_idx  = icol + ilay*ncol + igpt*ncol*nlay;
                 const int lev_idx1 = icol + ilay*ncol + igpt*ncol*(nlay+1);
                 const int lev_idx2 = icol + (ilay+1)*ncol + igpt*ncol*(nlay+1);
-                denom[lay_idx] = TF(1.)/(TF(1.) - r_dif[lay_idx] * albedo[lev_idx1]);
+                denom[lay_idx] = Real(1.)/(Real(1.) - r_dif[lay_idx] * albedo[lev_idx1]);
                 albedo[lev_idx2] = r_dif[lay_idx] + (t_dif[lay_idx] * t_dif[lay_idx] *
                                                      albedo[lev_idx1] * denom[lay_idx]);
                 src[lev_idx2] = source_up[lay_idx] + t_dif[lay_idx]*denom[lay_idx]*
@@ -220,12 +220,12 @@ namespace
         }
     }
 
-    template<typename TF>__device__
+    __device__
     void sw_source_kernel(const int icol, const int igpt,
-                          const int ncol, const int nlay, const BOOL_TYPE top_at_1,
-                          TF* __restrict__ r_dir, TF* __restrict__ t_dir, TF* __restrict__ t_noscat,
-                          const TF* __restrict__ sfc_alb_dir, TF* __restrict__ source_up, TF* __restrict__ source_dn,
-                          TF* __restrict__ source_sfc, TF* __restrict__ flux_dir)
+                          const int ncol, const int nlay, const Bool top_at_1,
+                          Real* __restrict__ r_dir, Real* __restrict__ t_dir, Real* __restrict__ t_noscat,
+                          const Real* __restrict__ sfc_alb_dir, Real* __restrict__ source_up, Real* __restrict__ source_dn,
+                          Real* __restrict__ source_sfc, Real* __restrict__ flux_dir)
     {
 
         if (top_at_1)
@@ -263,16 +263,16 @@ namespace
 
     }
 
-    template<typename TF>__device__
-    void apply_BC_kernel_lw(const int icol, const int igpt, const int isfc, int ncol, const int nlay, const int ngpt, const BOOL_TYPE top_at_1, const TF* __restrict__ inc_flux, TF* __restrict__ flux_dn)
+    __device__
+    void apply_BC_kernel_lw(const int icol, const int igpt, const int isfc, int ncol, const int nlay, const int ngpt, const Bool top_at_1, const Real* __restrict__ inc_flux, Real* __restrict__ flux_dn)
     {
         const int idx_in  = icol + isfc*ncol + igpt*ncol*(nlay+1);
         const int idx_out = (top_at_1) ? icol + igpt*ncol*(nlay+1) : icol + nlay*ncol + igpt*ncol*(nlay+1);
         flux_dn[idx_out] = inc_flux[idx_in];
     }
 
-    template<typename TF>__global__ //apply_BC_gpt
-    void apply_BC_kernel(const int ncol, const int nlay, const int ngpt, const BOOL_TYPE top_at_1, const TF* __restrict__ inc_flux, TF* __restrict__ flux_dn)
+    __global__ //apply_BC_gpt
+    void apply_BC_kernel(const int ncol, const int nlay, const int ngpt, const Bool top_at_1, const Real* __restrict__ inc_flux, Real* __restrict__ flux_dn)
     {
         const int icol = blockIdx.x*blockDim.x + threadIdx.x;
         const int igpt = blockIdx.y*blockDim.y + threadIdx.y;
@@ -293,8 +293,8 @@ namespace
         }
     }
 
-    template<typename TF>__global__
-    void apply_BC_kernel(const int ncol, const int nlay, const int ngpt, const BOOL_TYPE top_at_1, const TF* __restrict__ inc_flux, const TF* __restrict__ factor, TF* __restrict__ flux_dn)
+    __global__
+    void apply_BC_kernel(const int ncol, const int nlay, const int ngpt, const Bool top_at_1, const Real* __restrict__ inc_flux, const Real* __restrict__ factor, Real* __restrict__ flux_dn)
     {
         const int icol = blockIdx.x*blockDim.x + threadIdx.x;
         const int igpt = blockIdx.y*blockDim.y + threadIdx.y;
@@ -315,8 +315,8 @@ namespace
         }
     }
 
-    template<typename TF>__global__
-    void apply_BC_kernel(const int ncol, const int nlay, const int ngpt, const BOOL_TYPE top_at_1, TF* __restrict__ flux_dn)
+    __global__
+    void apply_BC_kernel(const int ncol, const int nlay, const int ngpt, const Bool top_at_1, Real* __restrict__ flux_dn)
     {
         const int icol = blockIdx.x*blockDim.x + threadIdx.x;
         const int igpt = blockIdx.y*blockDim.y + threadIdx.y;
@@ -325,21 +325,21 @@ namespace
             if (top_at_1)
             {
                 const int idx_out = icol + igpt*ncol*(nlay+1);
-                flux_dn[idx_out] = TF(0.);
+                flux_dn[idx_out] = Real(0.);
             }
             else
             {
                 const int idx_out = icol + nlay*ncol + igpt*ncol*(nlay+1);
-                flux_dn[idx_out] = TF(0.);
+                flux_dn[idx_out] = Real(0.);
             }
         }
     }
 
-    template<typename TF>__global__
-    void sw_2stream_kernel(const int ncol, const int nlay, const int ngpt, const TF tmin,
-            const TF* __restrict__ tau, const TF* __restrict__ ssa, const TF* __restrict__ g, const TF* __restrict__ mu0,
-            TF* __restrict__ r_dif, TF* __restrict__ t_dif,
-            TF* __restrict__ r_dir, TF* __restrict__ t_dir, TF* __restrict__ t_noscat)
+    __global__
+    void sw_2stream_kernel(const int ncol, const int nlay, const int ngpt, const Real tmin,
+            const Real* __restrict__ tau, const Real* __restrict__ ssa, const Real* __restrict__ g, const Real* __restrict__ mu0,
+            Real* __restrict__ r_dif, Real* __restrict__ t_dif,
+            Real* __restrict__ r_dir, Real* __restrict__ t_dir, Real* __restrict__ t_noscat)
     {
         const int icol = blockIdx.x*blockDim.x + threadIdx.x;
         const int ilay = blockIdx.y*blockDim.y + threadIdx.y;
@@ -348,50 +348,50 @@ namespace
         if ( (icol < ncol) && (ilay < nlay) && (igpt < ngpt) )
         {
             const int idx = icol + ilay*ncol + igpt*nlay*ncol;
-            const TF mu0_inv = TF(1.)/mu0[icol];
-            const TF gamma1 = (TF(8.) - ssa[idx] * (TF(5.) + TF(3.) * g[idx])) * TF(.25);
-            const TF gamma2 = TF(3.) * (ssa[idx] * (TF(1.) -          g[idx])) * TF(.25);
-            const TF gamma3 = (TF(2.) - TF(3.) * mu0[icol] *          g[idx]) * TF(.25);
-            const TF gamma4 = TF(1.) - gamma3;
+            const Real mu0_inv = Real(1.)/mu0[icol];
+            const Real gamma1 = (Real(8.) - ssa[idx] * (Real(5.) + Real(3.) * g[idx])) * Real(.25);
+            const Real gamma2 = Real(3.) * (ssa[idx] * (Real(1.) -          g[idx])) * Real(.25);
+            const Real gamma3 = (Real(2.) - Real(3.) * mu0[icol] *          g[idx]) * Real(.25);
+            const Real gamma4 = Real(1.) - gamma3;
 
-            const TF alpha1 = gamma1 * gamma4 + gamma2 * gamma3;
-            const TF alpha2 = gamma1 * gamma3 + gamma2 * gamma4;
+            const Real alpha1 = gamma1 * gamma4 + gamma2 * gamma3;
+            const Real alpha2 = gamma1 * gamma3 + gamma2 * gamma4;
 
-            const TF k = sqrt(max((gamma1 - gamma2) * (gamma1 + gamma2), TF(1e-12)));
-            const TF exp_minusktau = exp(-tau[idx] * k);
-            const TF exp_minus2ktau = exp_minusktau * exp_minusktau;
+            const Real k = sqrt(max((gamma1 - gamma2) * (gamma1 + gamma2), Real(1e-12)));
+            const Real exp_minusktau = exp(-tau[idx] * k);
+            const Real exp_minus2ktau = exp_minusktau * exp_minusktau;
 
-            const TF rt_term = TF(1.) / (k      * (TF(1.) + exp_minus2ktau) +
-                                         gamma1 * (TF(1.) - exp_minus2ktau));
-            r_dif[idx] = rt_term * gamma2 * (TF(1.) - exp_minus2ktau);
-            t_dif[idx] = rt_term * TF(2.) * k * exp_minusktau;
+            const Real rt_term = Real(1.) / (k      * (Real(1.) + exp_minus2ktau) +
+                                         gamma1 * (Real(1.) - exp_minus2ktau));
+            r_dif[idx] = rt_term * gamma2 * (Real(1.) - exp_minus2ktau);
+            t_dif[idx] = rt_term * Real(2.) * k * exp_minusktau;
             t_noscat[idx] = exp(-tau[idx] * mu0_inv);
 
-            const TF k_mu     = k * mu0[icol];
-            const TF k_gamma3 = k * gamma3;
-            const TF k_gamma4 = k * gamma4;
+            const Real k_mu     = k * mu0[icol];
+            const Real k_gamma3 = k * gamma3;
+            const Real k_gamma4 = k * gamma4;
 
-            const TF fact = (abs(TF(1.) - k_mu*k_mu) > tmin) ? TF(1.) - k_mu*k_mu : tmin;
-            const TF rt_term2 = ssa[idx] * rt_term / fact;
+            const Real fact = (abs(Real(1.) - k_mu*k_mu) > tmin) ? Real(1.) - k_mu*k_mu : tmin;
+            const Real rt_term2 = ssa[idx] * rt_term / fact;
 
-            r_dir[idx] = rt_term2  * ((TF(1.) - k_mu) * (alpha2 + k_gamma3)   -
-                                      (TF(1.) + k_mu) * (alpha2 - k_gamma3) * exp_minus2ktau -
-                                      TF(2.) * (k_gamma3 - alpha2 * k_mu)  * exp_minusktau * t_noscat[idx]);
+            r_dir[idx] = rt_term2  * ((Real(1.) - k_mu) * (alpha2 + k_gamma3)   -
+                                      (Real(1.) + k_mu) * (alpha2 - k_gamma3) * exp_minus2ktau -
+                                      Real(2.) * (k_gamma3 - alpha2 * k_mu)  * exp_minusktau * t_noscat[idx]);
 
-            t_dir[idx] = -rt_term2 * ((TF(1.) + k_mu) * (alpha1 + k_gamma4) * t_noscat[idx]   -
-                                      (TF(1.) - k_mu) * (alpha2 - k_gamma4) * exp_minus2ktau * t_noscat[idx] -
-                                       TF(2.) * (k_gamma4 + alpha1 * k_mu) * exp_minusktau);
+            t_dir[idx] = -rt_term2 * ((Real(1.) + k_mu) * (alpha1 + k_gamma4) * t_noscat[idx]   -
+                                      (Real(1.) - k_mu) * (alpha2 - k_gamma4) * exp_minus2ktau * t_noscat[idx] -
+                                       Real(2.) * (k_gamma4 + alpha1 * k_mu) * exp_minusktau);
         }
     }
 
-    template<typename TF>__global__
-    void sw_source_adding_kernel(const int ncol, const int nlay, const int ngpt, const BOOL_TYPE top_at_1,
-                                 const TF* __restrict__ sfc_alb_dir, const TF* __restrict__ sfc_alb_dif,
-                                 TF* __restrict__ r_dif, TF* __restrict__ t_dif,
-                                 TF* __restrict__ r_dir, TF* __restrict__ t_dir, TF* __restrict__ t_noscat,
-                                 TF* __restrict__ flux_up, TF* __restrict__ flux_dn, TF* __restrict__ flux_dir,
-                                 TF* __restrict__ source_up, TF* __restrict__ source_dn, TF* __restrict__ source_sfc,
-                                 TF* __restrict__ albedo, TF* __restrict__ src, TF* __restrict__ denom)
+    __global__
+    void sw_source_adding_kernel(const int ncol, const int nlay, const int ngpt, const Bool top_at_1,
+                                 const Real* __restrict__ sfc_alb_dir, const Real* __restrict__ sfc_alb_dif,
+                                 Real* __restrict__ r_dif, Real* __restrict__ t_dif,
+                                 Real* __restrict__ r_dir, Real* __restrict__ t_dir, Real* __restrict__ t_noscat,
+                                 Real* __restrict__ flux_up, Real* __restrict__ flux_dn, Real* __restrict__ flux_dir,
+                                 Real* __restrict__ source_up, Real* __restrict__ source_dn, Real* __restrict__ source_sfc,
+                                 Real* __restrict__ albedo, Real* __restrict__ src, Real* __restrict__ denom)
     {
         const int icol = blockIdx.x*blockDim.x + threadIdx.x;
         const int igpt = blockIdx.y*blockDim.y + threadIdx.y;
@@ -407,16 +407,16 @@ namespace
         }
     }
 
-    template<typename TF>__global__
-    void lw_solver_noscat_gaussquad_kernel(const int ncol, const int nlay, const int ngpt, const TF eps,
-                                           const BOOL_TYPE top_at_1, const int nmus, const TF* __restrict__ ds, const TF* __restrict__ weights,
-                                           const TF* __restrict__ tau, const TF* __restrict__ lay_source,
-                                           const TF* __restrict__ lev_source_inc, const TF* __restrict__ lev_source_dec, const TF* __restrict__ sfc_emis,
-                                           const TF* __restrict__ sfc_src, TF* __restrict__ radn_up, TF* __restrict__ radn_dn,
-                                           const TF* __restrict__ sfc_src_jac, TF* __restrict__ radn_up_jac, TF* __restrict__ tau_loc,
-                                           TF* __restrict__ trans, TF* __restrict__ source_dn, TF* __restrict__ source_up,
-                                           TF* __restrict__ source_sfc, TF* __restrict__ sfc_albedo, TF* __restrict__ source_sfc_jac,
-                                           TF* __restrict__ flux_up, TF* __restrict__ flux_dn, TF* __restrict__ flux_up_jac)
+    __global__
+    void lw_solver_noscat_gaussquad_kernel(const int ncol, const int nlay, const int ngpt, const Real eps,
+                                           const Bool top_at_1, const int nmus, const Real* __restrict__ ds, const Real* __restrict__ weights,
+                                           const Real* __restrict__ tau, const Real* __restrict__ lay_source,
+                                           const Real* __restrict__ lev_source_inc, const Real* __restrict__ lev_source_dec, const Real* __restrict__ sfc_emis,
+                                           const Real* __restrict__ sfc_src, Real* __restrict__ radn_up, Real* __restrict__ radn_dn,
+                                           const Real* __restrict__ sfc_src_jac, Real* __restrict__ radn_up_jac, Real* __restrict__ tau_loc,
+                                           Real* __restrict__ trans, Real* __restrict__ source_dn, Real* __restrict__ source_up,
+                                           Real* __restrict__ source_sfc, Real* __restrict__ sfc_albedo, Real* __restrict__ source_sfc_jac,
+                                           Real* __restrict__ flux_up, Real* __restrict__ flux_dn, Real* __restrict__ flux_up_jac)
     {
         const int icol = blockIdx.x*blockDim.x + threadIdx.x;
         const int igpt = blockIdx.y*blockDim.y + threadIdx.y;
@@ -452,9 +452,8 @@ namespace
 
 namespace rte_kernel_launcher_cuda
 {
-    template<typename TF>
-    void apply_BC(const int ncol, const int nlay, const int ngpt, const BOOL_TYPE top_at_1,
-                  const Array_gpu<TF,2>& inc_flux_dir, const Array_gpu<TF,1>& mu0, Array_gpu<TF,3>& gpt_flux_dir)
+    void apply_BC(const int ncol, const int nlay, const int ngpt, const Bool top_at_1,
+                  const Array_gpu<Real,2>& inc_flux_dir, const Array_gpu<Real,1>& mu0, Array_gpu<Real,3>& gpt_flux_dir)
     {
         const int block_col = 32;
         const int block_gpt = 32;
@@ -468,8 +467,7 @@ namespace rte_kernel_launcher_cuda
 
     }
 
-    template<typename TF>
-    void apply_BC(const int ncol, const int nlay, const int ngpt, const BOOL_TYPE top_at_1, Array_gpu<TF,3>& gpt_flux_dn)
+    void apply_BC(const int ncol, const int nlay, const int ngpt, const Bool top_at_1, Array_gpu<Real,3>& gpt_flux_dn)
     {
         const int block_col = 32;
         const int block_gpt = 32;
@@ -482,8 +480,7 @@ namespace rte_kernel_launcher_cuda
         apply_BC_kernel<<<grid_gpu, block_gpu>>>(ncol, nlay, ngpt, top_at_1, gpt_flux_dn.ptr());
     }
 
-    template<typename TF>
-    void apply_BC(const int ncol, const int nlay, const int ngpt, const BOOL_TYPE top_at_1, const Array_gpu<TF,2>& inc_flux_dif, Array_gpu<TF,3>& gpt_flux_dn)
+    void apply_BC(const int ncol, const int nlay, const int ngpt, const Bool top_at_1, const Array_gpu<Real,2>& inc_flux_dif, Array_gpu<Real,3>& gpt_flux_dn)
     {
         const int block_col = 32;
         const int block_gpt = 32;
@@ -496,30 +493,29 @@ namespace rte_kernel_launcher_cuda
         apply_BC_kernel<<<grid_gpu, block_gpu>>>(ncol, nlay, ngpt, top_at_1, inc_flux_dif.ptr(), gpt_flux_dn.ptr());
     }
 
-    template<typename TF>
-    void lw_solver_noscat_gaussquad(const int ncol, const int nlay, const int ngpt, const BOOL_TYPE top_at_1, const int nmus,
-                                    const Array_gpu<TF,2>& ds, const Array_gpu<TF,2>& weights, const Array_gpu<TF,3>& tau, const Array_gpu<TF,3> lay_source,
-                                    const Array_gpu<TF,3>& lev_source_inc, const Array_gpu<TF,3>& lev_source_dec, const Array_gpu<TF,2>& sfc_emis,
-                                    const Array_gpu<TF,2>& sfc_src, Array_gpu<TF,3>& flux_up, Array_gpu<TF,3>& flux_dn,
-                                    const Array_gpu<TF,2>& sfc_src_jac, Array_gpu<TF,3>& flux_up_jac)
+    void lw_solver_noscat_gaussquad(const int ncol, const int nlay, const int ngpt, const Bool top_at_1, const int nmus,
+                                    const Array_gpu<Real,2>& ds, const Array_gpu<Real,2>& weights, const Array_gpu<Real,3>& tau, const Array_gpu<Real,3> lay_source,
+                                    const Array_gpu<Real,3>& lev_source_inc, const Array_gpu<Real,3>& lev_source_dec, const Array_gpu<Real,2>& sfc_emis,
+                                    const Array_gpu<Real,2>& sfc_src, Array_gpu<Real,3>& flux_up, Array_gpu<Real,3>& flux_dn,
+                                    const Array_gpu<Real,2>& sfc_src_jac, Array_gpu<Real,3>& flux_up_jac)
     {
         float elapsedtime;
-        TF eps = std::numeric_limits<TF>::epsilon();
-        const int flx_size = flux_dn.size() * sizeof(TF);
-        const int opt_size = tau.size() * sizeof(TF);
-        const int mus_size = nmus * sizeof(TF);
-        const int sfc_size = sfc_src.size() * sizeof(TF);
+        Real eps = std::numeric_limits<Real>::epsilon();
+        const int flx_size = flux_dn.size() * sizeof(Real);
+        const int opt_size = tau.size() * sizeof(Real);
+        const int mus_size = nmus * sizeof(Real);
+        const int sfc_size = sfc_src.size() * sizeof(Real);
 
-        TF* tau_loc;
-        TF* radn_up;
-        TF* radn_up_jac;
-        TF* radn_dn;
-        TF* trans;
-        TF* source_dn;
-        TF* source_up;
-        TF* source_sfc;
-        TF* source_sfc_jac;
-        TF* sfc_albedo;
+        Real* tau_loc;
+        Real* radn_up;
+        Real* radn_up_jac;
+        Real* radn_dn;
+        Real* trans;
+        Real* source_dn;
+        Real* source_up;
+        Real* source_sfc;
+        Real* source_sfc_jac;
+        Real* sfc_albedo;
 
         cuda_safe_call(cudaMalloc((void **) &source_sfc, sfc_size));
         cuda_safe_call(cudaMalloc((void **) &source_sfc_jac, sfc_size));
@@ -558,26 +554,25 @@ namespace rte_kernel_launcher_cuda
         cuda_safe_call(cudaFree(sfc_albedo));
     }
 
-    template<typename TF>
-    void sw_solver_2stream(const int ncol, const int nlay, const int ngpt, const BOOL_TYPE top_at_1,
-                           const Array_gpu<TF,3>& tau, const Array_gpu<TF,3>& ssa, const Array_gpu<TF,3>& g,
-                           const Array_gpu<TF,1>& mu0, const Array_gpu<TF,2>& sfc_alb_dir, const Array_gpu<TF,2>& sfc_alb_dif,
-                           Array_gpu<TF,3>& flux_up, Array_gpu<TF,3>& flux_dn, Array_gpu<TF,3>& flux_dir)
+    void sw_solver_2stream(const int ncol, const int nlay, const int ngpt, const Bool top_at_1,
+                           const Array_gpu<Real,3>& tau, const Array_gpu<Real,3>& ssa, const Array_gpu<Real,3>& g,
+                           const Array_gpu<Real,1>& mu0, const Array_gpu<Real,2>& sfc_alb_dir, const Array_gpu<Real,2>& sfc_alb_dif,
+                           Array_gpu<Real,3>& flux_up, Array_gpu<Real,3>& flux_dn, Array_gpu<Real,3>& flux_dir)
     {
-        const int opt_size = tau.size() * sizeof(TF);
-        const int alb_size  = sfc_alb_dir.size() * sizeof(TF);
-        const int flx_size  = flux_up.size() * sizeof(TF);
-        TF* r_dif;
-        TF* t_dif;
-        TF* r_dir;
-        TF* t_dir;
-        TF* t_noscat;
-        TF* source_up;
-        TF* source_dn;
-        TF* source_sfc;
-        TF* albedo;
-        TF* src;
-        TF* denom;
+        const int opt_size = tau.size() * sizeof(Real);
+        const int alb_size  = sfc_alb_dir.size() * sizeof(Real);
+        const int flx_size  = flux_up.size() * sizeof(Real);
+        Real* r_dif;
+        Real* t_dif;
+        Real* r_dir;
+        Real* t_dir;
+        Real* t_noscat;
+        Real* source_up;
+        Real* source_dn;
+        Real* source_sfc;
+        Real* albedo;
+        Real* src;
+        Real* denom;
 
         cuda_safe_call(cudaMalloc((void **) &r_dif, opt_size));
         cuda_safe_call(cudaMalloc((void **) &t_dif, opt_size));
@@ -601,7 +596,7 @@ namespace rte_kernel_launcher_cuda
         dim3 grid_gpu3d(grid_col3d, grid_lay3d, grid_gpt3d);
         dim3 block_gpu3d(block_col3d, block_lay3d, block_gpt3d);
 
-        TF tmin = std::numeric_limits<TF>::epsilon();
+        Real tmin = std::numeric_limits<Real>::epsilon();
         sw_2stream_kernel<<<grid_gpu3d, block_gpu3d>>>(
                 ncol, nlay, ngpt, tmin, tau.ptr(), ssa.ptr(), g.ptr(), mu0.ptr(), r_dif, t_dif, r_dir, t_dir, t_noscat);
 
@@ -630,39 +625,3 @@ namespace rte_kernel_launcher_cuda
         cuda_safe_call(cudaFree(denom));
     }
 }
-
-#ifdef FLOAT_SINGLE_RRTMGP
-template void rte_kernel_launcher_cuda::sw_solver_2stream<float>(
-            const int, const int, const int, const BOOL_TYPE,
-            const Array_gpu<float,3>&, const Array_gpu<float,3>&, const Array_gpu<float,3>&,
-            const Array_gpu<float,1>&, const Array_gpu<float,2>&, const Array_gpu<float,2>&,
-            Array_gpu<float,3>&, Array_gpu<float,3>&, Array_gpu<float,3>&);
-
-template void rte_kernel_launcher_cuda::lw_solver_noscat_gaussquad<float>(
-            const int ncol, const int nlay, const int ngpt, const BOOL_TYPE top_at_1, const int nmus,
-            const Array_gpu<float,2>& ds, const Array_gpu<float,2>& weights, const Array_gpu<float,3>& tau, const Array_gpu<float,3> lay_source,
-            const Array_gpu<float,3>& lev_source_inc, const Array_gpu<float,3>& lev_source_dec, const Array_gpu<float,2>& sfc_emis,
-            const Array_gpu<float,2>& sfc_src, Array_gpu<float,3>& flux_dn, Array_gpu<float,3>& flux_up,
-            const Array_gpu<float,2>& sfc_src_jac, Array_gpu<float,3>& flux_up_jac);
-
-#else
-template void rte_kernel_launcher_cuda::apply_BC(const int, const int, const int, const BOOL_TYPE,
-                  const Array_gpu<double,2>&, const Array_gpu<double,1>&, Array_gpu<double,3>&);
-template void rte_kernel_launcher_cuda::apply_BC(const int, const int, const int, const BOOL_TYPE, Array_gpu<double,3>&);
-template void rte_kernel_launcher_cuda::apply_BC(const int, const int, const int, const BOOL_TYPE,
-                  const Array_gpu<double,2>&, Array_gpu<double,3>&);
-
-
-template void rte_kernel_launcher_cuda::sw_solver_2stream<double>(
-            const int, const int, const int, const BOOL_TYPE,
-            const Array_gpu<double,3>&, const Array_gpu<double,3>&, const Array_gpu<double,3>&,
-            const Array_gpu<double,1>&, const Array_gpu<double,2>&, const Array_gpu<double,2>&,
-            Array_gpu<double,3>&, Array_gpu<double,3>&, Array_gpu<double,3>&);
-
-template void rte_kernel_launcher_cuda::lw_solver_noscat_gaussquad<double>(
-            const int ncol, const int nlay, const int ngpt, const BOOL_TYPE top_at_1, const int nmus,
-            const Array_gpu<double,2>& ds, const Array_gpu<double,2>& weights, const Array_gpu<double,3>& tau, const Array_gpu<double,3> lay_source,
-            const Array_gpu<double,3>& lev_source_inc, const Array_gpu<double,3>& lev_source_dec, const Array_gpu<double,2>& sfc_emis,
-            const Array_gpu<double,2>& sfc_src, Array_gpu<double,3>& flux_up, Array_gpu<double,3>& flux_dn,
-            const Array_gpu<double,2>& sfc_src_jac,Array_gpu<double,3>& flux_up_jac);
-#endif

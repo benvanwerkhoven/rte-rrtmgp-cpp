@@ -30,10 +30,12 @@
 
 // Forward declarations.
 template<typename, int> class Array;
+template<typename, int> class Array_gpu;
 class Optical_props_arry;
+class Optical_props_arry_gpu;
 class Source_func_lw;
-class Fluxes_broadband;
-template<typename> class Source_func_lw_gpu;
+class Source_func_lw_gpu;
+
 
 class Rte_lw
 {
@@ -54,26 +56,26 @@ class Rte_lw
                 Array<Real,2>& arr_out);
 };
 
+
 #ifdef USECUDA
-template<typename TF>
 class Rte_lw_gpu
 {
     public:
         static void rte_lw(
-                const std::unique_ptr<Optical_props_arry_gpu<TF>>& optical_props,
-                const BOOL_TYPE top_at_1,
-                const Source_func_lw_gpu<TF>& sources,
-                const Array_gpu<TF,2>& sfc_emis,
-                const Array_gpu<TF,2>& inc_flux,
-                Array_gpu<TF,3>& gpt_flux_up,
-                Array_gpu<TF,3>& gpt_flux_dn,
+                const std::unique_ptr<Optical_props_arry_gpu>& optical_props,
+                const Bool top_at_1,
+                const Source_func_lw_gpu& sources,
+                const Array_gpu<Real,2>& sfc_emis,
+                const Array_gpu<Real,2>& inc_flux,
+                Array_gpu<Real,3>& gpt_flux_up,
+                Array_gpu<Real,3>& gpt_flux_dn,
                 const int n_gauss_angles);
 
         static void expand_and_transpose(
-                const std::unique_ptr<Optical_props_arry_gpu<TF>>& ops,
-                const Array_gpu<TF,2> arr_in,
-                Array_gpu<TF,2>& arr_out);
+                const std::unique_ptr<Optical_props_arry_gpu>& ops,
+                const Array_gpu<Real,2> arr_in,
+                Array_gpu<Real,2>& arr_out);
 };
-
 #endif
+
 #endif

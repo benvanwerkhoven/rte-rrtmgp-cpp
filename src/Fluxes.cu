@@ -28,10 +28,10 @@
 
 namespace
 {
-    template<typename TF>__global__
+    __global__
     void sum_broadband(
                 const int ncol, const int nlev, const int ngpt,
-                const TF* __restrict__ spectral_flux, TF* __restrict__ broadband_flux)
+                const Real* __restrict__ spectral_flux, Real* __restrict__ broadband_flux)
     {
         const int icol = blockIdx.x*blockDim.x + threadIdx.x;
         const int ilev = blockIdx.y*blockDim.y + threadIdx.y;
@@ -39,7 +39,7 @@ namespace
         if ( ( icol < ncol) && (ilev < nlev) )
         {
             const int idx_out = icol + ilev*ncol;
-            TF bb_flux_s = 0;
+            Real bb_flux_s = 0;
             for (int igpt=0; igpt < ngpt; ++igpt)
             {
                 const int idx_in = icol + ilev*ncol + igpt*nlev*ncol;
@@ -49,11 +49,11 @@ namespace
         }
     }
 
-    template<typename TF>__global__
+    __global__
     void net_broadband_precalc(
                 const int ncol, const int nlev,
-                const TF* __restrict__ flux_dn, const TF* __restrict__ flux_up,
-                TF* __restrict__ broadband_flux_net)
+                const Real* __restrict__ flux_dn, const Real* __restrict__ flux_up,
+                Real* __restrict__ broadband_flux_net)
     {
         const int icol = blockIdx.x*blockDim.x + threadIdx.x;
         const int ilev = blockIdx.y*blockDim.y + threadIdx.y;
@@ -65,11 +65,11 @@ namespace
         }
     }
 
-    template<typename TF>__global__
+    __global__
     void sum_byband(
                 const int ncol, const int nlev, const int ngpt, const int nbnd,
-                const int* __restrict__ band_lims, const TF* __restrict__ spectral_flux,
-                TF* __restrict__ byband_flux)
+                const int* __restrict__ band_lims, const Real* __restrict__ spectral_flux,
+                Real* __restrict__ byband_flux)
     {
         const int icol = blockIdx.x*blockDim.x + threadIdx.x;
         const int ilev = blockIdx.y*blockDim.y + threadIdx.y;
@@ -91,11 +91,11 @@ namespace
         }
     }
 
-    template<typename TF>__global__
+    __global__
     void net_byband_full(
                 const int ncol, const int nlev, const int ngpt, const int nbnd,
-                const int* __restrict__ band_lims, const TF* __restrict__ spectral_flux_dn,
-                const TF* __restrict__ spectral_flux_up, TF* __restrict__ byband_flux_net)
+                const int* __restrict__ band_lims, const Real* __restrict__ spectral_flux_dn,
+                const Real* __restrict__ spectral_flux_up, Real* __restrict__ byband_flux_net)
     {
         const int icol = blockIdx.x*blockDim.x + threadIdx.x;
         const int ilev = blockIdx.y*blockDim.y + threadIdx.y;
@@ -118,70 +118,68 @@ namespace
 
 //namespace rrtmgp_kernel_launcher
 //{
-//    template<typename TF>
+//    template<typename Real>
 //    void sum_broadband(
 //            int ncol, int nlev, int ngpt,
-//            const Array<TF,3>& spectral_flux, Array<TF,2>& broadband_flux)
+//            const Array<Real,3>& spectral_flux, Array<Real,2>& broadband_flux)
 //    {
 //        rrtmgp_kernels::sum_broadband(
 //                &ncol, &nlev, &ngpt,
-//                const_cast<TF*>(spectral_flux.ptr()),
+//                const_cast<Real*>(spectral_flux.ptr()),
 //                broadband_flux.ptr());
 //    }
 //
-//    template<typename TF>
+//    template<typename Real>
 //    void net_broadband(
 //            int ncol, int nlev,
-//            const Array<TF,2>& broadband_flux_dn, const Array<TF,2>& broadband_flux_up,
-//            Array<TF,2>& broadband_flux_net)
+//            const Array<Real,2>& broadband_flux_dn, const Array<Real,2>& broadband_flux_up,
+//            Array<Real,2>& broadband_flux_net)
 //    {
 //        rrtmgp_kernels::net_broadband_precalc(
 //                &ncol, &nlev,
-//                const_cast<TF*>(broadband_flux_dn.ptr()),
-//                const_cast<TF*>(broadband_flux_up.ptr()),
+//                const_cast<Real*>(broadband_flux_dn.ptr()),
+//                const_cast<Real*>(broadband_flux_up.ptr()),
 //                broadband_flux_net.ptr());
 //    }
 //
-//    template<typename TF>
+//    template<typename Real>
 //    void sum_byband(
 //            int ncol, int nlev, int ngpt, int nbnd,
 //            const Array<int,2>& band_lims,
-//            const Array<TF,3>& spectral_flux,
-//            Array<TF,3>& byband_flux)
+//            const Array<Real,3>& spectral_flux,
+//            Array<Real,3>& byband_flux)
 //    {
 //        rrtmgp_kernels::sum_byband(
 //                &ncol, &nlev, &ngpt, &nbnd,
 //                const_cast<int*>(band_lims.ptr()),
-//                const_cast<TF*>(spectral_flux.ptr()),
+//                const_cast<Real*>(spectral_flux.ptr()),
 //                byband_flux.ptr());
 //    }
 //
-//    template<typename TF>
+//    template<typename Real>
 //    void net_byband(
 //            int ncol, int nlev, int nband,
-//            const Array<TF,3>& byband_flux_dn, const Array<TF,3>& byband_flux_up,
-//            Array<TF,3>& byband_flux_net)
+//            const Array<Real,3>& byband_flux_dn, const Array<Real,3>& byband_flux_up,
+//            Array<Real,3>& byband_flux_net)
 //    {
 //        rrtmgp_kernels::net_byband_precalc(
 //                &ncol, &nlev, &nband,
-//                const_cast<TF*>(byband_flux_dn.ptr()),
-//                const_cast<TF*>(byband_flux_up.ptr()),
+//                const_cast<Real*>(byband_flux_dn.ptr()),
+//                const_cast<Real*>(byband_flux_up.ptr()),
 //                byband_flux_net.ptr());
 //    }
 
-template<typename TF>
-Fluxes_broadband_gpu<TF>::Fluxes_broadband_gpu(const int ncol, const int nlev) :
+Fluxes_broadband_gpu::Fluxes_broadband_gpu(const int ncol, const int nlev) :
     flux_up    ({ncol, nlev}),
     flux_dn    ({ncol, nlev}),
     flux_dn_dir({ncol, nlev}),
     flux_net   ({ncol, nlev})
 {}
 
-template<typename TF>
-void Fluxes_broadband_gpu<TF>::reduce(
-    const Array_gpu<TF,3>& gpt_flux_up, const Array_gpu<TF,3>& gpt_flux_dn,
-    const std::unique_ptr<Optical_props_arry_gpu<TF>>& spectral_disc,
-    const BOOL_TYPE top_at_1)
+void Fluxes_broadband_gpu::reduce(
+    const Array_gpu<Real,3>& gpt_flux_up, const Array_gpu<Real,3>& gpt_flux_dn,
+    const std::unique_ptr<Optical_props_arry_gpu>& spectral_disc,
+    const Bool top_at_1)
 {
     const int ncol = gpt_flux_up.dim(1);
     const int nlev = gpt_flux_up.dim(2);
@@ -207,11 +205,10 @@ void Fluxes_broadband_gpu<TF>::reduce(
 }
 
 //// CvH: unnecessary code duplication.
-template<typename TF>
-void Fluxes_broadband_gpu<TF>::reduce(
-    const Array_gpu<TF,3>& gpt_flux_up, const Array_gpu<TF,3>& gpt_flux_dn, const Array_gpu<TF,3>& gpt_flux_dn_dir,
-    const std::unique_ptr<Optical_props_arry_gpu<TF>>& spectral_disc,
-    const BOOL_TYPE top_at_1)
+void Fluxes_broadband_gpu::reduce(
+    const Array_gpu<Real,3>& gpt_flux_up, const Array_gpu<Real,3>& gpt_flux_dn, const Array_gpu<Real,3>& gpt_flux_dn_dir,
+    const std::unique_ptr<Optical_props_arry_gpu>& spectral_disc,
+    const Bool top_at_1)
 {
     const int ncol = gpt_flux_up.dim(1);
     const int nlev = gpt_flux_up.dim(2);
@@ -232,21 +229,19 @@ void Fluxes_broadband_gpu<TF>::reduce(
             ncol, nlev, ngpt, gpt_flux_dn_dir.ptr(), this->flux_dn_dir.ptr());
 }
 
-template<typename TF>
-Fluxes_byband_gpu<TF>::Fluxes_byband_gpu(const int ncol, const int nlev, const int nbnd) :
-    Fluxes_broadband_gpu<TF>(ncol, nlev),
+Fluxes_byband_gpu::Fluxes_byband_gpu(const int ncol, const int nlev, const int nbnd) :
+    Fluxes_broadband_gpu(ncol, nlev),
     bnd_flux_up    ({ncol, nlev, nbnd}),
     bnd_flux_dn    ({ncol, nlev, nbnd}),
     bnd_flux_dn_dir({ncol, nlev, nbnd}),
     bnd_flux_net   ({ncol, nlev, nbnd})
 {}
 
-template<typename TF>
-void Fluxes_byband_gpu<TF>::reduce(
-    const Array_gpu<TF,3>& gpt_flux_up,
-    const Array_gpu<TF,3>& gpt_flux_dn,
-    const std::unique_ptr<Optical_props_arry_gpu<TF>>& spectral_disc,
-    const BOOL_TYPE top_at_1)
+void Fluxes_byband_gpu::reduce(
+    const Array_gpu<Real,3>& gpt_flux_up,
+    const Array_gpu<Real,3>& gpt_flux_dn,
+    const std::unique_ptr<Optical_props_arry_gpu>& spectral_disc,
+    const Bool top_at_1)
 {
     const int ncol = gpt_flux_up.dim(1);
     const int nlev = gpt_flux_up.dim(2);
@@ -265,7 +260,7 @@ void Fluxes_byband_gpu<TF>::reduce(
     dim3 grid_gpu(grid_col, grid_lev, grid_bnd);
     dim3 block_gpu(block_col, block_lev, grid_bnd);
 
-    Fluxes_broadband_gpu<TF>::reduce(
+    Fluxes_broadband_gpu::reduce(
             gpt_flux_up, gpt_flux_dn,
             spectral_disc, top_at_1);
 
@@ -283,13 +278,12 @@ void Fluxes_byband_gpu<TF>::reduce(
 }
 
 // CvH: a lot of code duplication.
-template<typename TF>
-void Fluxes_byband_gpu<TF>::reduce(
-    const Array_gpu<TF,3>& gpt_flux_up,
-    const Array_gpu<TF,3>& gpt_flux_dn,
-    const Array_gpu<TF,3>& gpt_flux_dn_dir,
-    const std::unique_ptr<Optical_props_arry_gpu<TF>>& spectral_disc,
-    const BOOL_TYPE top_at_1)
+void Fluxes_byband_gpu::reduce(
+    const Array_gpu<Real,3>& gpt_flux_up,
+    const Array_gpu<Real,3>& gpt_flux_dn,
+    const Array_gpu<Real,3>& gpt_flux_dn_dir,
+    const std::unique_ptr<Optical_props_arry_gpu>& spectral_disc,
+    const Bool top_at_1)
 {
     const int ncol = gpt_flux_up.dim(1);
     const int nlev = gpt_flux_up.dim(2);
@@ -298,7 +292,7 @@ void Fluxes_byband_gpu<TF>::reduce(
 
     const Array_gpu<int,2>& band_lims = spectral_disc->get_band_lims_gpoint();
 
-    Fluxes_broadband_gpu<TF>::reduce(
+    Fluxes_broadband_gpu::reduce(
             gpt_flux_up, gpt_flux_dn, gpt_flux_dn_dir,
             spectral_disc, top_at_1);
 
@@ -319,11 +313,3 @@ void Fluxes_byband_gpu<TF>::reduce(
             ncol, nlev, ngpt, nbnd, band_lims.ptr(),
             gpt_flux_dn_dir.ptr(), this->bnd_flux_dn_dir.ptr());
 }
-
-#ifdef FLOAT_SINGLE_RRTMGP
-template class Fluxes_broadband_gpu<float>;
-template class Fluxes_byband_gpu<float>;
-#else
-template class Fluxes_broadband_gpu<double>;
-template class Fluxes_byband_gpu<double>;
-#endif

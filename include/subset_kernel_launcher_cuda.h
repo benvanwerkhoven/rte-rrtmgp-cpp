@@ -26,8 +26,7 @@
 #define RTE_KERNELS_CUDA_H
 
 #include "Array.h"
-#include "define_bool.h"
-#include "Gas_concs.h"
+#include "Types.h"
 
 namespace subset_kernel_launcher_cuda
 {

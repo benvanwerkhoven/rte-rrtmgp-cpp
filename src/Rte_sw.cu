@@ -33,10 +33,10 @@
 
 namespace
 {
-    template<typename TF>__global__
+    __global__
     void expand_and_transpose_kernel(
         const int ncol, const int nbnd, const int* __restrict__ limits,
-        TF* __restrict__ arr_out, const TF* __restrict__ arr_in)
+        Real* __restrict__ arr_out, const Real* __restrict__ arr_in)
     {
         const int icol = blockIdx.x*blockDim.x + threadIdx.x;
         const int ibnd = blockIdx.y*blockDim.y + threadIdx.y;
@@ -59,81 +59,80 @@ namespace
 
 //namespace rrtmgp_kernel_launcher
 //{
-//    template<typename TF>
+//    template<typename Real>
 //    void apply_BC(
 //            int ncol, int nlay, int ngpt,
-//            BOOL_TYPE top_at_1, Array<TF,3>& gpt_flux_dn)
+//            Bool top_at_1, Array<Real,3>& gpt_flux_dn)
 //    {
 //        rrtmgp_kernels::apply_BC_0(
 //                &ncol, &nlay, &ngpt,
 //                &top_at_1, gpt_flux_dn.ptr());
 //    }
 //
-//    template<typename TF>
+//    template<typename Real>
 //    void apply_BC(
-//            int ncol, int nlay, int ngpt, BOOL_TYPE top_at_1,
-//            const Array<TF,2>& inc_flux, Array<TF,3>& gpt_flux_dn)
+//            int ncol, int nlay, int ngpt, Bool top_at_1,
+//            const Array<Real,2>& inc_flux, Array<Real,3>& gpt_flux_dn)
 //    {
 //        rrtmgp_kernels::apply_BC_gpt(
 //                &ncol, &nlay, &ngpt, &top_at_1,
-//                const_cast<TF*>(inc_flux.ptr()), gpt_flux_dn.ptr());
+//                const_cast<Real*>(inc_flux.ptr()), gpt_flux_dn.ptr());
 //    }
 //
-//    template<typename TF>
+//    template<typename Real>
 //    void apply_BC(
-//            int ncol, int nlay, int ngpt, BOOL_TYPE top_at_1,
-//            const Array<TF,2>& inc_flux,
-//            const Array<TF,1>& factor,
-//            Array<TF,3>& gpt_flux)
+//            int ncol, int nlay, int ngpt, Bool top_at_1,
+//            const Array<Real,2>& inc_flux,
+//            const Array<Real,1>& factor,
+//            Array<Real,3>& gpt_flux)
 //    {
 //        rrtmgp_kernels::apply_BC_factor(
 //                &ncol, &nlay, &ngpt,
 //                &top_at_1,
-//                const_cast<TF*>(inc_flux.ptr()),
-//                const_cast<TF*>(factor.ptr()),
+//                const_cast<Real*>(inc_flux.ptr()),
+//                const_cast<Real*>(factor.ptr()),
 //                gpt_flux.ptr());
 //    }
 //
-//    template<typename TF>
+//    template<typename Real>
 //    void sw_solver_2stream(
-//            int ncol, int nlay, int ngpt, BOOL_TYPE top_at_1,
-//            const Array<TF,3>& tau,
-//            const Array<TF,3>& ssa,
-//            const Array<TF,3>& g,
-//            const Array<TF,1>& mu0,
-//            const Array<TF,2>& sfc_alb_dir_gpt, const Array<TF,2>& sfc_alb_dif_gpt,
-//            Array<TF,3>& gpt_flux_up, Array<TF,3>& gpt_flux_dn, Array<TF,3>& gpt_flux_dir)
+//            int ncol, int nlay, int ngpt, Bool top_at_1,
+//            const Array<Real,3>& tau,
+//            const Array<Real,3>& ssa,
+//            const Array<Real,3>& g,
+//            const Array<Real,1>& mu0,
+//            const Array<Real,2>& sfc_alb_dir_gpt, const Array<Real,2>& sfc_alb_dif_gpt,
+//            Array<Real,3>& gpt_flux_up, Array<Real,3>& gpt_flux_dn, Array<Real,3>& gpt_flux_dir)
 //    {
 //        rrtmgp_kernels::sw_solver_2stream(
 //                &ncol, &nlay, &ngpt, &top_at_1,
-//                const_cast<TF*>(tau.ptr()),
-//                const_cast<TF*>(ssa.ptr()),
-//                const_cast<TF*>(g  .ptr()),
-//                const_cast<TF*>(mu0.ptr()),
-//                const_cast<TF*>(sfc_alb_dir_gpt.ptr()),
-//                const_cast<TF*>(sfc_alb_dif_gpt.ptr()),
+//                const_cast<Real*>(tau.ptr()),
+//                const_cast<Real*>(ssa.ptr()),
+//                const_cast<Real*>(g  .ptr()),
+//                const_cast<Real*>(mu0.ptr()),
+//                const_cast<Real*>(sfc_alb_dir_gpt.ptr()),
+//                const_cast<Real*>(sfc_alb_dif_gpt.ptr()),
 //                gpt_flux_up.ptr(), gpt_flux_dn.ptr(), gpt_flux_dir.ptr());
 //    }
 
-template<typename TF>
-void Rte_sw_gpu<TF>::rte_sw(
-        const std::unique_ptr<Optical_props_arry_gpu<TF>>& optical_props,
-        const BOOL_TYPE top_at_1,
-        const Array_gpu<TF,1>& mu0,
-        const Array_gpu<TF,2>& inc_flux_dir,
-        const Array_gpu<TF,2>& sfc_alb_dir,
-        const Array_gpu<TF,2>& sfc_alb_dif,
-        const Array_gpu<TF,2>& inc_flux_dif,
-        Array_gpu<TF,3>& gpt_flux_up,
-        Array_gpu<TF,3>& gpt_flux_dn,
-        Array_gpu<TF,3>& gpt_flux_dir)
+void Rte_sw_gpu::rte_sw(
+        const std::unique_ptr<Optical_props_arry_gpu>& optical_props,
+        const Bool top_at_1,
+        const Array_gpu<Real,1>& mu0,
+        const Array_gpu<Real,2>& inc_flux_dir,
+        const Array_gpu<Real,2>& sfc_alb_dir,
+        const Array_gpu<Real,2>& sfc_alb_dif,
+        const Array_gpu<Real,2>& inc_flux_dif,
+        Array_gpu<Real,3>& gpt_flux_up,
+        Array_gpu<Real,3>& gpt_flux_dn,
+        Array_gpu<Real,3>& gpt_flux_dir)
 {
     const int ncol = optical_props->get_ncol();
     const int nlay = optical_props->get_nlay();
     const int ngpt = optical_props->get_ngpt();
 
-    Array_gpu<TF,2> sfc_alb_dir_gpt({ncol, ngpt});
-    Array_gpu<TF,2> sfc_alb_dif_gpt({ncol, ngpt});
+    Array_gpu<Real,2> sfc_alb_dir_gpt({ncol, ngpt});
+    Array_gpu<Real,2> sfc_alb_dif_gpt({ncol, ngpt});
 
     expand_and_transpose(optical_props, sfc_alb_dir, sfc_alb_dir_gpt);
     expand_and_transpose(optical_props, sfc_alb_dif, sfc_alb_dif_gpt);
@@ -160,11 +159,10 @@ void Rte_sw_gpu<TF>::rte_sw(
     // fluxes->reduce(gpt_flux_up, gpt_flux_dn, gpt_flux_dir, optical_props, top_at_1);
 }
 
-template<typename TF>
-void Rte_sw_gpu<TF>::expand_and_transpose(
-        const std::unique_ptr<Optical_props_arry_gpu<TF>>& ops,
-        const Array_gpu<TF,2> arr_in,
-        Array_gpu<TF,2>& arr_out)
+void Rte_sw_gpu::expand_and_transpose(
+        const std::unique_ptr<Optical_props_arry_gpu>& ops,
+        const Array_gpu<Real,2> arr_in,
+        Array_gpu<Real,2>& arr_out)
 {
     const int ncol = arr_in.dim(2);
     const int nbnd = ops->get_nband();
@@ -183,9 +181,3 @@ void Rte_sw_gpu<TF>::expand_and_transpose(
     expand_and_transpose_kernel<<<grid_gpu, block_gpu>>>(
         ncol, nbnd, limits.ptr(), arr_out.ptr(), arr_in.ptr());
 }
-
-#ifdef FLOAT_SINGLE_RRTMGP
-template class Rte_sw_gpu<float>;
-#else
-template class Rte_sw_gpu<double>;
-#endif

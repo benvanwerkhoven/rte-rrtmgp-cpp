@@ -30,8 +30,9 @@
 
 template<typename, int> class Array;
 template<typename, int> class Array_gpu;
-template<typename> class Optical_props_gpu;
-template<typename> class Source_func_lw_gpu;
+class Optical_props_gpu;
+class Source_func_lw_gpu;
+
 
 class Source_func_lw : public Optical_props
 {
@@ -70,42 +71,41 @@ class Source_func_lw : public Optical_props
 };
 
 #ifdef USECUDA
-template<typename TF>
-class Source_func_lw_gpu : public Optical_props_gpu<TF>
+class Source_func_lw_gpu : public Optical_props_gpu
 {
     public:
         Source_func_lw_gpu(
                 const int n_col,
                 const int n_lay,
-                const Optical_props_gpu<TF>& optical_props);
+                const Optical_props_gpu& optical_props);
 
-//        void set_subset(
-//                const Source_func_lw<TF>& sources_sub,
-//                const int col_s, const int col_e);
-//
-//        void get_subset(
-//                const Source_func_lw<TF>& sources_sub,
-//                const int col_s, const int col_e);
-//
-        Array_gpu<TF,2>& get_sfc_source()     { return sfc_source;     }
-        Array_gpu<TF,2>& get_sfc_source_jac() { return sfc_source_jac; }
-        Array_gpu<TF,3>& get_lay_source()     { return lay_source;     }
-        Array_gpu<TF,3>& get_lev_source_inc() { return lev_source_inc; }
-        Array_gpu<TF,3>& get_lev_source_dec() { return lev_source_dec; }
+        // void set_subset(
+        //         const Source_func_lw<Real>& sources_sub,
+        //         const int col_s, const int col_e);
 
-        const Array_gpu<TF,2>& get_sfc_source()     const { return sfc_source;     }
-        const Array_gpu<TF,2>& get_sfc_source_jac() const { return sfc_source_jac; }
-        const Array_gpu<TF,3>& get_lay_source()     const { return lay_source;     }
-        const Array_gpu<TF,3>& get_lev_source_inc() const { return lev_source_inc; }
-        const Array_gpu<TF,3>& get_lev_source_dec() const { return lev_source_dec; }
+        // void get_subset(
+        //         const Source_func_lw<Real>& sources_sub,
+        //         const int col_s, const int col_e);
+
+        Array_gpu<Real,2>& get_sfc_source()     { return sfc_source;     }
+        Array_gpu<Real,2>& get_sfc_source_jac() { return sfc_source_jac; }
+        Array_gpu<Real,3>& get_lay_source()     { return lay_source;     }
+        Array_gpu<Real,3>& get_lev_source_inc() { return lev_source_inc; }
+        Array_gpu<Real,3>& get_lev_source_dec() { return lev_source_dec; }
+
+        const Array_gpu<Real,2>& get_sfc_source()     const { return sfc_source;     }
+        const Array_gpu<Real,2>& get_sfc_source_jac() const { return sfc_source_jac; }
+        const Array_gpu<Real,3>& get_lay_source()     const { return lay_source;     }
+        const Array_gpu<Real,3>& get_lev_source_inc() const { return lev_source_inc; }
+        const Array_gpu<Real,3>& get_lev_source_dec() const { return lev_source_dec; }
 
     private:
-        Array_gpu<TF,2> sfc_source;
-        Array_gpu<TF,2> sfc_source_jac;
-        Array_gpu<TF,3> lay_source;
-        Array_gpu<TF,3> lev_source_inc;
-        Array_gpu<TF,3> lev_source_dec;
+        Array_gpu<Real,2> sfc_source;
+        Array_gpu<Real,2> sfc_source_jac;
+        Array_gpu<Real,3> lay_source;
+        Array_gpu<Real,3> lev_source_inc;
+        Array_gpu<Real,3> lev_source_dec;
 };
-
 #endif
+
 #endif

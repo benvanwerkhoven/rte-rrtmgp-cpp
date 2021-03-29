@@ -34,5 +34,5 @@ if(USECUDA)
   set(USER_CUDA_NVCC_FLAGS_RELEASE "-Xptxas -O3 -DNDEBUG")
 endif()
 
-add_definitions(-DRESTRICTKEYWORD=__restrict__)
-add_definitions(-DUSE_CBOOL)
+add_compile_definitions(RESTRICTKEYWORD=__restrict__)
+add_compile_definitions(RTE_RRTMGP_USE_CBOOL)

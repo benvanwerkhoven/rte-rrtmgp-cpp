@@ -36,7 +36,7 @@ class Radiation_solver_longwave
                 const std::string& file_name_cloud);
 
         Radiation_solver_longwave(
-                const Gas_concs_gpu<TF>& gas_concs,
+                const Gas_concs_gpu& gas_concs,
                 const std::string& file_name_gas,
                 const std::string& file_name_cloud);
 
@@ -72,17 +72,17 @@ class Radiation_solver_longwave
                 const bool switch_cloud_optics,
                 const bool switch_output_optical,
                 const bool switch_output_bnd_fluxes,
-                const Gas_concs_gpu<TF>& gas_concs,
-                const Array_gpu<TF,2>& p_lay, const Array_gpu<TF,2>& p_lev,
-                const Array_gpu<TF,2>& t_lay, const Array_gpu<TF,2>& t_lev,
-                const Array_gpu<TF,2>& col_dry,
-                const Array_gpu<TF,1>& t_sfc, const Array_gpu<TF,2>& emis_sfc,
-                const Array_gpu<TF,2>& lwp, const Array_gpu<TF,2>& iwp,
-                const Array_gpu<TF,2>& rel, const Array_gpu<TF,2>& rei,
-                Array_gpu<TF,3>& tau, Array_gpu<TF,3>& lay_source,
-                Array_gpu<TF,3>& lev_source_inc, Array_gpu<TF,3>& lev_source_dec, Array_gpu<TF,2>& sfc_source,
-                Array_gpu<TF,2>& lw_flux_up, Array_gpu<TF,2>& lw_flux_dn, Array_gpu<TF,2>& lw_flux_net,
-                Array_gpu<TF,3>& lw_bnd_flux_up, Array_gpu<TF,3>& lw_bnd_flux_dn, Array_gpu<TF,3>& lw_bnd_flux_net) const;
+                const Gas_concs_gpu& gas_concs,
+                const Array_gpu<Real,2>& p_lay, const Array_gpu<Real,2>& p_lev,
+                const Array_gpu<Real,2>& t_lay, const Array_gpu<Real,2>& t_lev,
+                const Array_gpu<Real,2>& col_dry,
+                const Array_gpu<Real,1>& t_sfc, const Array_gpu<Real,2>& emis_sfc,
+                const Array_gpu<Real,2>& lwp, const Array_gpu<Real,2>& iwp,
+                const Array_gpu<Real,2>& rel, const Array_gpu<Real,2>& rei,
+                Array_gpu<Real,3>& tau, Array_gpu<Real,3>& lay_source,
+                Array_gpu<Real,3>& lev_source_inc, Array_gpu<Real,3>& lev_source_dec, Array_gpu<Real,2>& sfc_source,
+                Array_gpu<Real,2>& lw_flux_up, Array_gpu<Real,2>& lw_flux_dn, Array_gpu<Real,2>& lw_flux_net,
+                Array_gpu<Real,3>& lw_bnd_flux_up, Array_gpu<Real,3>& lw_bnd_flux_dn, Array_gpu<Real,3>& lw_bnd_flux_net) const;
 
         int get_n_gpt_gpu() const { return this->kdist_gpu->get_ngpt(); };
         int get_n_bnd_gpu() const { return this->kdist_gpu->get_nband(); };
@@ -90,7 +90,7 @@ class Radiation_solver_longwave
         Array<int,2> get_band_lims_gpoint_gpu() const
         { return this->kdist_gpu->get_band_lims_gpoint(); }
 
-        Array<TF,2> get_band_lims_wavenumber_gpu() const
+        Array<Real,2> get_band_lims_wavenumber_gpu() const
         { return this->kdist_gpu->get_band_lims_wavenumber(); }
         #endif
 
@@ -99,8 +99,8 @@ class Radiation_solver_longwave
         std::unique_ptr<Cloud_optics> cloud_optics;
 
         #ifdef __CUDACC__
-        std::unique_ptr<Gas_optics_rrtmgp_gpu<TF>> kdist_gpu;
-        std::unique_ptr<Cloud_optics_gpu<TF>> cloud_optics_gpu;
+        std::unique_ptr<Gas_optics_rrtmgp_gpu> kdist_gpu;
+        std::unique_ptr<Cloud_optics_gpu> cloud_optics_gpu;
         #endif
 };
 
@@ -112,7 +112,7 @@ class Radiation_solver_shortwave
                 const std::string& file_name_gas,
                 const std::string& file_name_cloud);
         Radiation_solver_shortwave(
-                const Gas_concs_gpu<TF>& gas_concs,
+                const Gas_concs_gpu& gas_concs,
                 const std::string& file_name_gas,
                 const std::string& file_name_cloud);
 
@@ -153,30 +153,30 @@ class Radiation_solver_shortwave
                 const bool switch_cloud_optics,
                 const bool switch_output_optical,
                 const bool switch_output_bnd_fluxes,
-                const Gas_concs_gpu<TF>& gas_concs,
-                const Array_gpu<TF,2>& p_lay, const Array_gpu<TF,2>& p_lev,
-                const Array_gpu<TF,2>& t_lay, const Array_gpu<TF,2>& t_lev,
-                const Array_gpu<TF,2>& col_dry,
-                const Array_gpu<TF,2>& sfc_alb_dir, const Array_gpu<TF,2>& sfc_alb_dif,
-                const Array_gpu<TF,1>& tsi_scaling, const Array_gpu<TF,1>& mu0,
-                const Array_gpu<TF,2>& lwp, const Array_gpu<TF,2>& iwp,
-                const Array_gpu<TF,2>& rel, const Array_gpu<TF,2>& rei,
-                Array_gpu<TF,3>& tau, Array_gpu<TF,3>& ssa, Array_gpu<TF,3>& g,
-                Array_gpu<TF,2>& toa_src,
-                Array_gpu<TF,2>& sw_flux_up, Array_gpu<TF,2>& sw_flux_dn,
-                Array_gpu<TF,2>& sw_flux_dn_dir, Array_gpu<TF,2>& sw_flux_net,
-                Array_gpu<TF,3>& sw_bnd_flux_up, Array_gpu<TF,3>& sw_bnd_flux_dn,
-                Array_gpu<TF,3>& sw_bnd_flux_dn_dir, Array_gpu<TF,3>& sw_bnd_flux_net) const;
+                const Gas_concs_gpu& gas_concs,
+                const Array_gpu<Real,2>& p_lay, const Array_gpu<Real,2>& p_lev,
+                const Array_gpu<Real,2>& t_lay, const Array_gpu<Real,2>& t_lev,
+                const Array_gpu<Real,2>& col_dry,
+                const Array_gpu<Real,2>& sfc_alb_dir, const Array_gpu<Real,2>& sfc_alb_dif,
+                const Array_gpu<Real,1>& tsi_scaling, const Array_gpu<Real,1>& mu0,
+                const Array_gpu<Real,2>& lwp, const Array_gpu<Real,2>& iwp,
+                const Array_gpu<Real,2>& rel, const Array_gpu<Real,2>& rei,
+                Array_gpu<Real,3>& tau, Array_gpu<Real,3>& ssa, Array_gpu<Real,3>& g,
+                Array_gpu<Real,2>& toa_src,
+                Array_gpu<Real,2>& sw_flux_up, Array_gpu<Real,2>& sw_flux_dn,
+                Array_gpu<Real,2>& sw_flux_dn_dir, Array_gpu<Real,2>& sw_flux_net,
+                Array_gpu<Real,3>& sw_bnd_flux_up, Array_gpu<Real,3>& sw_bnd_flux_dn,
+                Array_gpu<Real,3>& sw_bnd_flux_dn_dir, Array_gpu<Real,3>& sw_bnd_flux_net) const;
 
         int get_n_gpt_gpu() const { return this->kdist_gpu->get_ngpt(); };
         int get_n_bnd_gpu() const { return this->kdist_gpu->get_nband(); };
 
-        TF get_tsi_gpu() const { return this->kdist_gpu->get_tsi(); };
+        Real get_tsi_gpu() const { return this->kdist_gpu->get_tsi(); };
         
         Array<int,2> get_band_lims_gpoint_gpu() const
         { return this->kdist_gpu->get_band_lims_gpoint(); }
 
-        Array<TF,2> get_band_lims_wavenumber_gpu() const
+        Array<Real,2> get_band_lims_wavenumber_gpu() const
         { return this->kdist_gpu->get_band_lims_wavenumber(); }
         #endif
 
@@ -185,8 +185,8 @@ class Radiation_solver_shortwave
         std::unique_ptr<Cloud_optics> cloud_optics;
 
         #ifdef __CUDACC__
-        std::unique_ptr<Gas_optics_gpu<TF>> kdist_gpu;
-        std::unique_ptr<Cloud_optics_gpu<TF>> cloud_optics_gpu;
+        std::unique_ptr<Gas_optics_gpu> kdist_gpu;
+        std::unique_ptr<Cloud_optics_gpu> cloud_optics_gpu;
         #endif
 };
 #endif
