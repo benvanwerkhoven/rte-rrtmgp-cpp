@@ -28,11 +28,11 @@ namespace
 {
     __global__
     void compute_from_table_kernel(
-            const int ncol, const int nlay, const int nbnd, const Bool* mask,
-            const Real* cwp, const Real* re,
+            const int ncol, const int nlay, const int nbnd, const Bool* __restrict__ mask,
+            const Real* __restrict__ cwp, const Real* __restrict__ re,
             const int nsteps, const Real step_size, const Real offset,
-            const Real* tau_table, const Real* ssa_table, const Real* asy_table,
-            Real* tau, Real* taussa, Real* taussag)
+            const Real* __restrict__ tau_table, const Real* __restrict__ ssa_table, const Real* __restrict__ asy_table,
+            Real* __restrict__ tau, Real* __restrict__ taussa, Real* __restrict__ taussag)
     {
         const int ibnd = blockIdx.x*blockDim.x + threadIdx.x;
         const int ilay = blockIdx.y*blockDim.y + threadIdx.y;
@@ -69,10 +69,11 @@ namespace
     }
 
     __global__
-    void combine_and_store_kernel(const int ncol, const int nlay, const int nbnd, const Real tmin,
-                  Real* __restrict__ tau,
-                  const Real* __restrict__ ltau, const Real* __restrict__ ltaussa,
-                  const Real* __restrict__ itau, const Real* __restrict__ itaussa)
+    void combine_and_store_kernel(
+            const int ncol, const int nlay, const int nbnd, const Real tmin,
+            Real* __restrict__ tau,
+            const Real* __restrict__ ltau, const Real* __restrict__ ltaussa,
+            const Real* __restrict__ itau, const Real* __restrict__ itaussa)
     {
         const int ibnd = blockIdx.x*blockDim.x + threadIdx.x;
         const int ilay = blockIdx.y*blockDim.y + threadIdx.y;
@@ -88,10 +89,11 @@ namespace
     }
 
     __global__
-    void combine_and_store_kernel(const int ncol, const int nlay, const int nbnd, const Real tmin,
-                  Real* __restrict__ tau, Real* __restrict__ ssa, Real* __restrict__ g,
-                  const Real* __restrict__ ltau, const Real* __restrict__ ltaussa, const Real* __restrict__ ltaussag,
-                  const Real* __restrict__ itau, const Real* __restrict__ itaussa, const Real* __restrict__ itaussag)
+    void combine_and_store_kernel(
+            const int ncol, const int nlay, const int nbnd, const Real tmin,
+            Real* __restrict__ tau, Real* __restrict__ ssa, Real* __restrict__ g,
+            const Real* __restrict__ ltau, const Real* __restrict__ ltaussa, const Real* __restrict__ ltaussag,
+            const Real* __restrict__ itau, const Real* __restrict__ itaussa, const Real* __restrict__ itaussag)
     {
         const int ibnd = blockIdx.x*blockDim.x + threadIdx.x;
         const int ilay = blockIdx.y*blockDim.y + threadIdx.y;
@@ -194,8 +196,8 @@ void Cloud_optics_gpu::cloud_optics(
     const int block_col_m = 16;
     const int block_lay_m = 16;
 
-    const int grid_col_m  = ncol/block_col_m + (ncol%block_col_m > 0);
-    const int grid_lay_m  = nlay/block_lay_m + (nlay%block_lay_m > 0);
+    const int grid_col_m = ncol/block_col_m + (ncol%block_col_m > 0);
+    const int grid_lay_m = nlay/block_lay_m + (nlay%block_lay_m > 0);
 
     dim3 grid_m_gpu(grid_col_m, grid_lay_m);
     dim3 block_m_gpu(block_col_m, block_lay_m);
@@ -221,9 +223,9 @@ void Cloud_optics_gpu::cloud_optics(
     const int block_lay = 1;
     const int block_col = 32;
 
-    const int grid_bnd  = nbnd/block_bnd + (nbnd%block_bnd > 0);
-    const int grid_lay  = nlay/block_lay + (nlay%block_lay > 0);
-    const int grid_col  = ncol/block_col + (ncol%block_col > 0);
+    const int grid_bnd = nbnd/block_bnd + (nbnd%block_bnd > 0);
+    const int grid_lay = nlay/block_lay + (nlay%block_lay > 0);
+    const int grid_col = ncol/block_col + (ncol%block_col > 0);
 
     dim3 grid_gpu(grid_bnd, grid_lay, grid_col);
     dim3 block_gpu(block_bnd, block_lay, block_col);
@@ -269,8 +271,8 @@ void Cloud_optics_gpu::cloud_optics(
     const int block_col_m = 16;
     const int block_lay_m = 16;
 
-    const int grid_col_m  = ncol/block_col_m + (ncol%block_col_m > 0);
-    const int grid_lay_m  = nlay/block_lay_m + (nlay%block_lay_m > 0);
+    const int grid_col_m = ncol/block_col_m + (ncol%block_col_m > 0);
+    const int grid_lay_m = nlay/block_lay_m + (nlay%block_lay_m > 0);
 
     dim3 grid_m_gpu(grid_col_m, grid_lay_m);
     dim3 block_m_gpu(block_col_m, block_lay_m);
@@ -296,9 +298,9 @@ void Cloud_optics_gpu::cloud_optics(
     const int block_lay = 1;
     const int block_col = 32;
 
-    const int grid_bnd  = nbnd/block_bnd + (nbnd%block_bnd > 0);
-    const int grid_lay  = nlay/block_lay + (nlay%block_lay > 0);
-    const int grid_col  = ncol/block_col + (ncol%block_col > 0);
+    const int grid_bnd = nbnd/block_bnd + (nbnd%block_bnd > 0);
+    const int grid_lay = nlay/block_lay + (nlay%block_lay > 0);
+    const int grid_col = ncol/block_col + (ncol%block_col > 0);
 
     dim3 grid_gpu(grid_bnd, grid_lay, grid_col);
     dim3 block_gpu(block_bnd, block_lay, block_col);
