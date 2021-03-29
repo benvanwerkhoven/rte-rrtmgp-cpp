@@ -7,10 +7,16 @@
 
 namespace
 {
+    template<typename TF> __device__ constexpr TF k_min();
+    template<> __device__ constexpr double k_min() { return 1.e-12; }
+    template<> __device__ constexpr float k_min() { return float(1.e-4); }
+
+
     __device__
-    void lw_source_noscat_kernel(const int icol, const int igpt, const int ncol, const int nlay, const int ngpt, const Real eps,
-                                 const Real* __restrict__ lay_source, const Real* __restrict__ lev_source_up, const Real* __restrict__ lev_source_dn,
-                                 const Real* __restrict__ tau, const Real* __restrict__ trans, Real* __restrict__ source_dn, Real* __restrict__ source_up)
+    void lw_source_noscat_kernel(
+            const int icol, const int igpt, const int ncol, const int nlay, const int ngpt, const Real eps,
+            const Real* __restrict__ lay_source, const Real* __restrict__ lev_source_up, const Real* __restrict__ lev_source_dn,
+            const Real* __restrict__ tau, const Real* __restrict__ trans, Real* __restrict__ source_dn, Real* __restrict__ source_up)
     {
         const Real tau_thres = sqrt(eps);
         for (int ilay=0; ilay<nlay; ++ilay)
@@ -357,7 +363,7 @@ namespace
             const Real alpha1 = gamma1 * gamma4 + gamma2 * gamma3;
             const Real alpha2 = gamma1 * gamma3 + gamma2 * gamma4;
 
-            const Real k = sqrt(max((gamma1 - gamma2) * (gamma1 + gamma2), Real(1e-12)));
+            const Real k = sqrt(max((gamma1 - gamma2) * (gamma1 + gamma2), k_min<Real>()));
             const Real exp_minusktau = exp(-tau[idx] * k);
             const Real exp_minus2ktau = exp_minusktau * exp_minusktau;
 
