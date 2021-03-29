@@ -7,7 +7,7 @@ using Bool = signed char;
 using Bool = int;
 #endif
 
-#ifdef RTE_RRTMGP__SINGLE_PRECISION
+#ifdef RTE_RRTMGP_SINGLE_PRECISION
 using Real = float;
 #else
 using Real = double;
