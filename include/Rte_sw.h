@@ -31,7 +31,7 @@
 // Forward declarations.
 template<typename, int> class Array;
 template<typename> class Optical_props_arry;
-template<typename> class Fluxes_broadband;
+class Fluxes_broadband;
 
 template<typename TF>
 class Rte_sw

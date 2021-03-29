@@ -414,8 +414,8 @@ void Radiation_solver_longwave<TF>::solve(
             std::unique_ptr<Optical_props_1scl<TF>>& cloud_optical_props_subset_in,
             Source_func_lw<TF>& sources_subset_in,
             const Array<TF,2>& emis_sfc_subset_in,
-            Fluxes_broadband<TF>& fluxes,
-            Fluxes_broadband<TF>& bnd_fluxes)
+            Fluxes_broadband& fluxes,
+            Fluxes_broadband& bnd_fluxes)
     {
         const int n_col_in = col_e_in - col_s_in + 1;
         Gas_concs gas_concs_subset(gas_concs, col_s_in, n_col_in);
@@ -524,10 +524,10 @@ void Radiation_solver_longwave<TF>::solve(
 
         Array<TF,2> emis_sfc_subset = emis_sfc.subset({{ {1, n_bnd}, {col_s, col_e} }});
 
-        std::unique_ptr<Fluxes_broadband<TF>> fluxes_subset =
-                std::make_unique<Fluxes_broadband<TF>>(n_col_block, n_lev);
-        std::unique_ptr<Fluxes_broadband<TF>> bnd_fluxes_subset =
-                std::make_unique<Fluxes_byband<TF>>(n_col_block, n_lev, n_bnd);
+        std::unique_ptr<Fluxes_broadband> fluxes_subset =
+                std::make_unique<Fluxes_broadband>(n_col_block, n_lev);
+        std::unique_ptr<Fluxes_broadband> bnd_fluxes_subset =
+                std::make_unique<Fluxes_byband>(n_col_block, n_lev, n_bnd);
 
         call_kernels(
                 col_s, col_e,
@@ -545,10 +545,10 @@ void Radiation_solver_longwave<TF>::solve(
         const int col_e = n_col;
 
         Array<TF,2> emis_sfc_residual = emis_sfc.subset({{ {1, n_bnd}, {col_s, col_e} }});
-        std::unique_ptr<Fluxes_broadband<TF>> fluxes_residual =
-                std::make_unique<Fluxes_broadband<TF>>(n_col_block_residual, n_lev);
-        std::unique_ptr<Fluxes_broadband<TF>> bnd_fluxes_residual =
-                std::make_unique<Fluxes_byband<TF>>(n_col_block_residual, n_lev, n_bnd);
+        std::unique_ptr<Fluxes_broadband> fluxes_residual =
+                std::make_unique<Fluxes_broadband>(n_col_block_residual, n_lev);
+        std::unique_ptr<Fluxes_broadband> bnd_fluxes_residual =
+                std::make_unique<Fluxes_byband>(n_col_block_residual, n_lev, n_bnd);
 
         call_kernels(
                 col_s, col_e,
@@ -632,8 +632,8 @@ void Radiation_solver_shortwave<TF>::solve(
             const int col_s_in, const int col_e_in,
             std::unique_ptr<Optical_props_arry<TF>>& optical_props_subset_in,
             std::unique_ptr<Optical_props_2str<TF>>& cloud_optical_props_subset_in,
-            Fluxes_broadband<TF>& fluxes,
-            Fluxes_broadband<TF>& bnd_fluxes)
+            Fluxes_broadband& fluxes,
+            Fluxes_broadband& bnd_fluxes)
     {
         const int n_col_in = col_e_in - col_s_in + 1;
         Gas_concs gas_concs_subset(gas_concs, col_s_in, n_col_in);
@@ -752,10 +752,10 @@ void Radiation_solver_shortwave<TF>::solve(
         const int col_s = (b-1) * n_col_block + 1;
         const int col_e =  b    * n_col_block;
 
-        std::unique_ptr<Fluxes_broadband<TF>> fluxes_subset =
-                std::make_unique<Fluxes_broadband<TF>>(n_col_block, n_lev);
-        std::unique_ptr<Fluxes_broadband<TF>> bnd_fluxes_subset =
-                std::make_unique<Fluxes_byband<TF>>(n_col_block, n_lev, n_bnd);
+        std::unique_ptr<Fluxes_broadband> fluxes_subset =
+                std::make_unique<Fluxes_broadband>(n_col_block, n_lev);
+        std::unique_ptr<Fluxes_broadband> bnd_fluxes_subset =
+                std::make_unique<Fluxes_byband>(n_col_block, n_lev, n_bnd);
 
         call_kernels(
                 col_s, col_e,
@@ -770,10 +770,10 @@ void Radiation_solver_shortwave<TF>::solve(
         const int col_s = n_col - n_col_block_residual + 1;
         const int col_e = n_col;
 
-        std::unique_ptr<Fluxes_broadband<TF>> fluxes_residual =
-                std::make_unique<Fluxes_broadband<TF>>(n_col_block_residual, n_lev);
-        std::unique_ptr<Fluxes_broadband<TF>> bnd_fluxes_residual =
-                std::make_unique<Fluxes_byband<TF>>(n_col_block_residual, n_lev, n_bnd);
+        std::unique_ptr<Fluxes_broadband> fluxes_residual =
+                std::make_unique<Fluxes_broadband>(n_col_block_residual, n_lev);
+        std::unique_ptr<Fluxes_broadband> bnd_fluxes_residual =
+                std::make_unique<Fluxes_byband>(n_col_block_residual, n_lev, n_bnd);
 
         call_kernels(
                 col_s, col_e,

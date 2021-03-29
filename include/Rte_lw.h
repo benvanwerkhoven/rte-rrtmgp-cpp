@@ -32,7 +32,7 @@
 template<typename, int> class Array;
 template<typename> class Optical_props_arry;
 template<typename> class Source_func_lw;
-template<typename> class Fluxes_broadband;
+class Fluxes_broadband;
 
 template<typename TF>
 class Rte_lw
