@@ -122,7 +122,7 @@ class Fluxes_byband : public Fluxes_broadband
         Array<Real,3> bnd_flux_net;
 };
 
-//#ifdef USECUDA
+#ifdef USECUDA
 class Fluxes_gpu
 {
     public:
@@ -208,6 +208,6 @@ class Fluxes_byband_gpu : public Fluxes_broadband_gpu
         Array_gpu<Real,3> bnd_flux_dn_dir;
         Array_gpu<Real,3> bnd_flux_net;
 };
+#endif
 
-//#endif
 #endif
