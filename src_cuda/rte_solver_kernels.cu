@@ -385,7 +385,7 @@ namespace
                                       Real(2.) * (k_gamma3 - alpha2 * k_mu)  * exp_minusktau * t_noscat[idx]);
 
             t_dir[idx] = -rt_term2 * ((Real(1.) + k_mu) * (alpha1 + k_gamma4) * t_noscat[idx]   -
-                                      (Real(1.) - k_mu) * (alpha2 - k_gamma4) * exp_minus2ktau * t_noscat[idx] -
+                                      (Real(1.) - k_mu) * (alpha1 - k_gamma4) * exp_minus2ktau * t_noscat[idx] -
                                        Real(2.) * (k_gamma4 + alpha1 * k_mu) * exp_minusktau);
         }
     }

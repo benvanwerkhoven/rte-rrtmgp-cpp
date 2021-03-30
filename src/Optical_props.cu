@@ -128,7 +128,7 @@ namespace
             const Real wf = ssa[idx] * f;
             tau[idx] *= (Real(1.) - wf);
             ssa[idx] = (ssa[idx] - wf) / max(eps,(Real(1.)-wf));
-            g[idx] = (g[idx] - f) / max(eps,(Real(1.)-wf));
+            g[idx] = (g[idx] - f) / max(eps,(Real(1.)-f));
 
         }
     }
